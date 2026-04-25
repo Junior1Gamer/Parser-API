@@ -1,0 +1,11 @@
+# Binary (must be in repo root, not in subdirs)
+/mfapi
+mfapi.exe
+
+# Output directory (committed to output branch, not main)
+/output/
+
+# IDE
+.vscode/
+.idea/
+*.swp

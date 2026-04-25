@@ -1,0 +1,55 @@
+name: Scrape and deploy manga data
+
+on:
+  schedule:
+    - cron: '17 4 * * *'   # daily at 04:17 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parser
+  cancel-in-progress: true
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Build parser binary
+        run: go build -o mfapi ./cmd/mfapi/
+
+      - name: Run parser (full scrape)
+        run: |
+          mkdir -p output/manga
+          ./mfapi \
+            --mode full \
+            --output output \
+            --rate 500ms \
+            --retries 3
+
+      - name: Generate index metadata
+        run: |
+          echo "{\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"total_manga\":$(cat output/manga.json | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")}" > output/index.json
+
+      - name: Deploy to output branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GH_PAT || github.token }}
+          publish_dir: output
+          publish_branch: output
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
