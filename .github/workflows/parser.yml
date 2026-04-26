@@ -1,11 +1,7 @@
 name: Scrape and deploy manga data
 
 on:
-  schedule:
-    - cron: '17 4 * * *'   # daily at 04:17 UTC
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: write
