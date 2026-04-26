@@ -119,6 +119,20 @@ func runDetail(client *mfire.Client, outputDir string, parallel, ratePerSec int,
 		}
 		log.Printf("Fetch index loaded: %d entries tracked", len(fetchIdx.Entries))
 
+		// One-time migration: populate fetch index from existing detail files.
+		if len(fetchIdx.Entries) == 0 && len(slugs) > 0 {
+			now := time.Now().UTC().Format(time.RFC3339)
+			migrated := 0
+			for _, slug := range slugs {
+				p := filepath.Join(outputDir, "manga", slug+".json")
+				if _, err := os.Stat(p); err == nil {
+					fetchIdx.Entries[slug] = mfire.FetchIndexEntry{FetchedAt: now}
+					migrated++
+				}
+			}
+			log.Printf("Migrated %d existing detail files into fetch index", migrated)
+		}
+
 		detailWriter := mfire.NewDirectDetailWriter(outputDir)
 		fetched, err := client.FetchAllMangaDetailsParallel(slugs, parallel, ratePerSec, detailWriter, fetchIdx, progress)
 		if err != nil {
