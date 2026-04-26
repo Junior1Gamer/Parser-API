@@ -33,6 +33,7 @@ The files are published to the [`output`](https://github.com/Junior1Gamer/MF-API
 branch and served at:
 
 ```
+https://junior1gamer.github.io/MF-API/metadata.json
 https://junior1gamer.github.io/MF-API/manga.json
 https://junior1gamer.github.io/MF-API/manga/{slug}.json
 https://junior1gamer.github.io/MF-API/manga/{slug}/chapters/{num}.json
