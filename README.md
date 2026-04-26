@@ -195,10 +195,6 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 > automated pipeline fast while still giving consumers access to page data when
 > needed.
 
-# Or run both listing + detail in one go
-go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
-```
-
 ### CLI flags
 
 | Flag | Default | Description |
