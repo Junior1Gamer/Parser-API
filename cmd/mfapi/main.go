@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -120,13 +121,18 @@ func runDetail(client *mfire.Client, outputDir string, parallel, ratePerSec int,
 		log.Printf("Fetch index loaded: %d entries tracked", len(fetchIdx.Entries))
 
 		// One-time migration: populate fetch index from existing detail files.
+		// A random offset (0-3 days back) staggers the first refresh wave so
+		// not all 53K entries expire simultaneously on day 7.
 		if len(fetchIdx.Entries) == 0 && len(slugs) > 0 {
-			now := time.Now().UTC().Format(time.RFC3339)
+			base := time.Now().UTC()
 			migrated := 0
 			for _, slug := range slugs {
 				p := filepath.Join(outputDir, "manga", slug+".json")
 				if _, err := os.Stat(p); err == nil {
-					fetchIdx.Entries[slug] = mfire.FetchIndexEntry{FetchedAt: now}
+					offset := time.Duration(rand.Intn(4)) * 24 * time.Hour // 0-3 days back
+					fetchIdx.Entries[slug] = mfire.FetchIndexEntry{
+						FetchedAt: base.Add(-offset).Format(time.RFC3339),
+					}
 					migrated++
 				}
 			}
