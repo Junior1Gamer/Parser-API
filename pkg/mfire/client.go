@@ -19,7 +19,7 @@ import (
 
 // Defaults
 const (
-	DefaultTimeout    = 30 * time.Second
+	DefaultTimeout    = 60 * time.Second
 	DefaultRateLimit  = 500 * time.Millisecond // 2 requests per second
 	DefaultMaxRetries = 3
 )
@@ -117,7 +117,8 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 		}
 
 		// Per-request context deadline prevents indefinite hangs.
-		ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+		// 60 seconds covers Cloudflare challenge warm-up plus slow pages.
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		req = req.WithContext(ctx)
 		resp, err := c.http.Do(req)
 		cancel()
@@ -144,8 +145,7 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 		if resp.StatusCode == 403 {
 			// Cloudflare challenge. Back off longer.
 			lastErr = fmt.Errorf("cloudflare 403 (attempt %d)", attempt+1)
-			// For 403, sleep 15-30 seconds before retry
-			time.Sleep(time.Duration(15+rand.Intn(16)) * time.Second)
+			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second) // 20-40 s
 			continue
 		}
 
@@ -177,7 +177,7 @@ func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
 		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
 		req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		req = req.WithContext(ctx)
 		resp, err := c.http.Do(req)
 		cancel()
@@ -234,13 +234,15 @@ func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.D
 	return c.FetchDocument(vrfURL)
 }
 
-// backoff sleeps with exponential backoff + jitter.
+// backoff sleeps with exponential backoff + jitter. The first wait is ~2 s,
+// second is ~4 s, third is ~8 s. A small initial delay helps the site
+// recover from transient blocks.
 func (c *Client) backoff(attempt int) {
 	if attempt >= c.maxRetries-1 {
 		return
 	}
-	base := time.Duration(math.Pow(2, float64(attempt))) * time.Second
-	jitter := time.Duration(rand.Intn(1000)) * time.Millisecond
+	base := time.Duration(2*math.Pow(2, float64(attempt))) * time.Second
+	jitter := time.Duration(rand.Intn(2000)) * time.Millisecond
 	time.Sleep(base + jitter)
 }
 
