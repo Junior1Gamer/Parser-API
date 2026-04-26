@@ -121,14 +121,18 @@ showDetail(manga.title, manga.description, manga.chapters);
 
 ```
 MF-API/
-    ├── .github/workflows/parser.yml   # Manual-trigger pipeline
-├── cmd/mfapi/main.go               # CLI entry point
+├── .github/
+│   └── workflows/
+│       └── parser.yml              # Manual-trigger pipeline
+├── cmd/
+│   └── mfapi/
+│       └── main.go                 # CLI entry point
 ├── pkg/
 │   ├── mfire/
 │   │   ├── client.go              # HTTP client with retry & rate limiting
 │   │   ├── detail.go              # Manga detail scraper + parallel worker pool
 │   │   ├── list.go                # All-manga listing via pagination
-│   │   ├── models.go              # Data types (MangaListItem, MangaDetail, Chapter)
+│   │   ├── models.go              # Data types
 │   │   ├── ratelimit.go           # Concurrent-safe token-bucket rate limiter
 │   │   └── vrf.go                 # RC4-based VRF token generator
 │   └── output/
