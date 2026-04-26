@@ -26,7 +26,7 @@ const (
 //	GET /ajax/read/{type}/{chapterId}?vrf={vrfToken}
 //
 // where the VRF token is computed from "{type}@{chapterId}".
-func (c *Client) FetchChapterPages(chapterID, chapterType string) ([]string, error) {
+func (c *Client) FetchChapterPages(chapterID, chapterType string) ([]PageImage, error) {
 	if chapterType == "" {
 		chapterType = defaultType
 	}
@@ -44,7 +44,7 @@ func (c *Client) FetchChapterPages(chapterID, chapterType string) ([]string, err
 
 // fetchPagesJSON re-fetches the AJAX URL as raw JSON and extracts
 // the image URLs.
-func (c *Client) fetchPagesJSON(ajaxURL string) ([]string, error) {
+func (c *Client) fetchPagesJSON(ajaxURL string) ([]PageImage, error) {
 	body, err := c.FetchJSON(ajaxURL)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (c *Client) fetchPagesJSON(ajaxURL string) ([]string, error) {
 		return nil, fmt.Errorf("decode pages json: %w", err)
 	}
 
-	images := make([]string, 0, len(pr.Result.Images))
+	images := make([]PageImage, 0, len(pr.Result.Images))
 	for _, img := range pr.Result.Images {
 		if len(img) < 1 {
 			continue
@@ -64,9 +64,19 @@ func (c *Client) fetchPagesJSON(ajaxURL string) ([]string, error) {
 		if !ok || imgURL == "" {
 			continue
 		}
-		// Remove the anti-hotlinking referer check by ensuring the URL is
-		// fully qualified.
-		images = append(images, ResolveURL(imgURL))
+		// Extract scrambling offset (third element in the array).
+		// When > 0, the image pixels are rearranged and need unscrambling.
+		var offset int
+		if len(img) >= 3 {
+			if f, ok := img[2].(float64); ok {
+				offset = int(f)
+			}
+		}
+
+		images = append(images, PageImage{
+			URL:             ResolveURL(imgURL),
+			ScrambledOffset: offset,
+		})
 	}
 
 	return images, nil

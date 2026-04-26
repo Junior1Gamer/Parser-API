@@ -35,20 +35,31 @@ type Chapter struct {
 	URL    string `json:"url,omitempty"`
 }
 
+// PageImage holds a single page image URL and its scrambling offset.
+// When ScrambledOffset > 0, the image pixels are rearranged in a grid pattern
+// and must be unscrambled by the consumer using the offset as the seed.
+type PageImage struct {
+	URL             string `json:"url"`
+	ScrambledOffset int    `json:"scrambled_offset,omitempty"`
+}
+
+// IsScrambled returns true when the page image needs unscrambling.
+func (p PageImage) IsScrambled() bool { return p.ScrambledOffset > 0 }
+
 // ChapterPages holds the page image URLs for a single chapter.
 type ChapterPages struct {
-	Slug    string   `json:"slug"`
-	Chapter string   `json:"chapter"`
-	Title   string   `json:"title,omitempty"`
-	Pages   []string `json:"pages"`
+	Slug    string      `json:"slug"`
+	Chapter string      `json:"chapter"`
+	Title   string      `json:"title,omitempty"`
+	Pages   []PageImage `json:"pages"`
 }
 
 // ChapterPagesFile is the on-disk structure saved per chapter.
 type ChapterPagesFile struct {
-	Slug    string   `json:"slug"`
-	Chapter string   `json:"chapter"`
-	Title   string   `json:"title,omitempty"`
-	Pages   []string `json:"pages"`
+	Slug    string      `json:"slug"`
+	Chapter string      `json:"chapter"`
+	Title   string      `json:"title,omitempty"`
+	Pages   []PageImage `json:"pages"`
 }
 
 // ChapterIndex lists all chapter page files for a manga.
