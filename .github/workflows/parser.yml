@@ -89,6 +89,7 @@ jobs:
           publish_dir: output
           publish_branch: output
           keep_files: true
+          enable_jekyll: true
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
 
