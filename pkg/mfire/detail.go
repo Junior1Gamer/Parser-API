@@ -1,15 +1,28 @@
 package mfire
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 const mangaBaseURL = "https://mangafire.to/manga/"
+
+// DetailWriter is the interface the parallel fetcher uses to persist each
+// manga detail as soon as it is fetched. Implementations should be safe for
+// concurrent use.
+type DetailWriter interface {
+	WriteDetail(detail MangaDetail) error
+	DetailExists(slug string) bool
+}
 
 // FetchMangaDetail scrapes the full metadata for a single manga, including
 // its chapter list.
@@ -26,7 +39,6 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 	}
 
 	// --- Title ---
-	// Try h1[itemprop="name"] first, then og:title, then h1.
 	result.Title = strings.TrimSpace(doc.Find("h1[itemprop=name]").First().Text())
 	if result.Title == "" {
 		doc.Find("meta[property='og:title']").Each(func(_ int, s *goquery.Selection) {
@@ -57,13 +69,11 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 	doc.Find("meta[name=description], meta[property='og:description']").Each(func(_ int, s *goquery.Selection) {
 		if c, ok := s.Attr("content"); ok {
 			desc := strings.TrimSpace(c)
-			// Skip generic descriptions
 			if len(desc) > 50 && !strings.Contains(desc, "read manga") {
 				result.Description = desc
 			}
 		}
 	})
-	// Fallback: div.description or div.synopsis
 	if result.Description == "" {
 		desc := strings.TrimSpace(doc.Find("div.description, div.synopsis, .description, .synopsis").First().Text())
 		if len(desc) > 50 {
@@ -82,7 +92,6 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 		}
 	})
 	if len(result.Genres) == 0 {
-		// Alternative: look in meta tags or lists
 		doc.Find(".genres a, .tags a, .info-rating .meta a").Each(func(_ int, s *goquery.Selection) {
 			g := strings.TrimSpace(s.Text())
 			if g != "" {
@@ -94,7 +103,6 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 	// --- Alternative titles ---
 	doc.Find(".alt-title, .alternative, h2:contains('Alternative'), .other-names").Each(func(_ int, s *goquery.Selection) {
 		text := strings.TrimSpace(s.Text())
-		// Remove label prefix
 		text = strings.TrimPrefix(text, "Alternative:")
 		text = strings.TrimPrefix(text, "Alt:")
 		text = strings.TrimSpace(text)
@@ -122,8 +130,7 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 	})
 
 	// --- Chapters ---
-	chapters := parseChapters(doc)
-	result.Chapters = chapters
+	result.Chapters = parseChapters(doc)
 
 	return result, nil
 }
@@ -132,29 +139,18 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 func parseChapters(doc *goquery.Document) []Chapter {
 	var chapters []Chapter
 
-	// The chapter list is typically a <ul> with <li> containing <a> elements.
-	// Each list item may have a data-number attribute for the chapter number.
 	doc.Find("ul li[data-number], .list-body li, .chapters li, .chapter-list li").Each(func(_ int, s *goquery.Selection) {
 		ch := Chapter{}
-
-		// Try data-number first.
 		if numStr, ok := s.Attr("data-number"); ok {
 			ch.Number = strings.TrimSpace(numStr)
 		}
-
-		// Chapter link.
 		link := s.Find("a").First()
 		ch.URL, _ = link.Attr("href")
 		ch.URL = ResolveURL(ch.URL)
-
-		// Chapter title from link text or title attribute.
 		ch.Title = strings.TrimSpace(link.AttrOr("title", ""))
 		if ch.Title == "" {
 			ch.Title = strings.TrimSpace(link.Text())
 		}
-
-		// If we didn't get a number from data-number, extract from the link
-		// href or text.
 		if ch.Number == "" {
 			href := link.AttrOr("href", "")
 			parts := strings.Split(href, "/")
@@ -165,16 +161,12 @@ func parseChapters(doc *goquery.Document) []Chapter {
 				}
 			}
 		}
-
-		// Date.
 		ch.Date = strings.TrimSpace(s.Find("span.date, .chapter-date, time").First().Text())
-
 		if ch.Number != "" || ch.Title != "" {
 			chapters = append(chapters, ch)
 		}
 	})
 
-	// Fallback: simple chapter links.
 	if len(chapters) == 0 {
 		doc.Find("a[href*='/chapter/']").Each(func(_ int, s *goquery.Selection) {
 			ch := Chapter{}
@@ -197,14 +189,12 @@ func parseChapters(doc *goquery.Document) []Chapter {
 	return chapters
 }
 
-// isChapterNumber reports whether s looks like a chapter number, e.g. "1",
-// "10.5", "ch1", "chapter-1".
+// isChapterNumber reports whether s looks like a chapter number.
 func isChapterNumber(s string) bool {
 	s = strings.TrimPrefix(s, "ch")
 	s = strings.TrimPrefix(s, "chapter-")
 	s = strings.TrimPrefix(s, "chapter.")
 	s = strings.TrimPrefix(s, "v")
-	// Now it should be a number like "1", "10.5" etc.
 	if s == "" {
 		return false
 	}
@@ -224,26 +214,157 @@ func isChapterNumber(s string) bool {
 	return true
 }
 
-// FetchAllMangaDetails sequentially fetches details for all slugs in the list.
-// It sends progress messages on the channel when non-nil.
+// ---------------------------------------------------------------------------
+// Sequential detail fetch (kept for completeness / small batches)
+// ---------------------------------------------------------------------------
+
+// FetchAllMangaDetails sequentially fetches details for all slugs. Progress
+// messages are sent on the channel when non-nil.
 func (c *Client) FetchAllMangaDetails(slugs []string, progress chan<- string) ([]MangaDetail, error) {
 	var details []MangaDetail
-
 	for i, slug := range slugs {
 		detail, err := c.FetchMangaDetail(slug)
 		if err != nil {
-			log.Printf("Warning: detail fetch failed for %s: %v; skipping", slug, err)
+			log.Printf("Warning: detail failed for %s: %v; skipping", slug, err)
 			continue
 		}
 		details = append(details, *detail)
-
 		if progress != nil {
 			progress <- fmt.Sprintf("detail %d/%d: %s", i+1, len(slugs), slug)
 		}
-
-		// Be nice to the server.
 		time.Sleep(300 * time.Millisecond)
 	}
-
 	return details, nil
+}
+
+// ---------------------------------------------------------------------------
+// Parallel detail fetch with resume support
+// ---------------------------------------------------------------------------
+
+// FetchAllMangaDetailsParallel fetches manga details concurrently using the
+// given number of workers. It respects a shared rate limiter, writes each
+// detail immediately via the provided writer, and skips slugs whose detail
+// file already exists (resume support).
+//
+// Returns the number of new details fetched (not including resumed skips).
+func (c *Client) FetchAllMangaDetailsParallel(
+	slugs []string,
+	workers int,
+	ratePerSec int,
+	writer DetailWriter,
+	progress chan<- string,
+) (int, error) {
+
+	if workers < 1 {
+		workers = 1
+	}
+	if ratePerSec < 1 {
+		ratePerSec = 1
+	}
+
+	// Build work queue, skipping already-fetched slugs.
+	var totalSkipped int64
+	work := make(chan string, len(slugs))
+	for _, slug := range slugs {
+		if writer != nil && writer.DetailExists(slug) {
+			atomic.AddInt64(&totalSkipped, 1)
+			continue
+		}
+		work <- slug
+	}
+	close(work)
+
+	total := len(work)
+	if total == 0 {
+		log.Printf("All %d manga already have detail files; nothing to do.", len(slugs))
+		return 0, nil
+	}
+
+	log.Printf("Starting parallel detail fetch: %d new, %d already done, %d workers, %d req/s",
+		total, totalSkipped, workers, ratePerSec)
+
+	limiter := NewSharedRateLimiter(ratePerSec)
+	defer limiter.Close()
+
+	var (
+		wg       sync.WaitGroup
+		fetched  int64
+		totalMu  sync.Mutex
+		allErrs  []error
+	)
+
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+			for slug := range work {
+				limiter.Acquire()
+
+				detail, err := c.FetchMangaDetail(slug)
+				if err != nil {
+					errMsg := fmt.Errorf("worker %d: detail %s: %w", workerID, slug, err)
+					log.Printf("Warning: %v", errMsg)
+					totalMu.Lock()
+					allErrs = append(allErrs, errMsg)
+					totalMu.Unlock()
+					continue
+				}
+
+				// Write immediately.
+				if writer != nil {
+					if we := writer.WriteDetail(*detail); we != nil {
+						log.Printf("Warning: write %s: %v", slug, we)
+					}
+				}
+
+				n := atomic.AddInt64(&fetched, 1)
+				if progress != nil {
+					progress <- fmt.Sprintf("detail %d/%d (worker %d): %s", n, total, workerID, slug)
+				}
+			}
+		}(w)
+	}
+
+	wg.Wait()
+
+	totalFetched := int(atomic.LoadInt64(&fetched))
+	log.Printf("Parallel detail fetch complete: %d new, %d skipped, %d errors",
+		totalFetched, totalSkipped, len(allErrs))
+
+	return totalFetched, nil
+}
+
+// DirectDetailWriter is a DetailWriter that writes JSON files to a base
+// directory. Safe for concurrent use.
+type DirectDetailWriter struct {
+	BaseDir string
+}
+
+// NewDirectDetailWriter creates a writer that stores manga detail JSON files
+// under baseDir/manga/.
+func NewDirectDetailWriter(baseDir string) *DirectDetailWriter {
+	return &DirectDetailWriter{BaseDir: baseDir}
+}
+
+// DetailExists returns true when the detail file for the given slug already
+// exists on disk.
+func (w *DirectDetailWriter) DetailExists(slug string) bool {
+	p := filepath.Join(w.BaseDir, "manga", slug+".json")
+	_, err := os.Stat(p)
+	return err == nil
+}
+
+// WriteDetail marshals the detail to indented JSON and writes it to
+// baseDir/manga/{slug}.json.
+func (w *DirectDetailWriter) WriteDetail(detail MangaDetail) error {
+	dir := filepath.Join(w.BaseDir, "manga")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+	data, err := json.MarshalIndent(detail, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+	p := filepath.Join(dir, detail.Slug+".json")
+	return os.WriteFile(p, data, 0644)
 }

@@ -31,14 +31,24 @@ jobs:
       - name: Build parser binary
         run: go build -o mfapi ./cmd/mfapi/
 
-      - name: Run parser (full scrape)
+      - name: Run list phase (fetch all manga slugs)
         run: |
           mkdir -p output/manga
           ./mfapi \
-            --mode full \
+            --mode list \
             --output output \
             --rate 500ms \
             --retries 3
+
+      - name: Run detail phase (fetch metadata, resume-safe)
+        run: |
+          ./mfapi \
+            --mode detail \
+            --output output \
+            --rate 500ms \
+            --retries 3 \
+            --parallel 4 \
+            --rate-per-sec 3
 
       - name: Generate index metadata
         run: |
@@ -50,6 +60,6 @@ jobs:
           github_token: ${{ secrets.GH_PAT || github.token }}
           publish_dir: output
           publish_branch: output
-          force_orphan: true
+          keep_files: true
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com

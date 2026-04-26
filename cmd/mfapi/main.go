@@ -18,24 +18,26 @@ func main() {
 	searchQuery := flag.String("query", "", "Search keyword (use with --mode=search)")
 	limit := flag.Int("limit", 0, "Max results (0 = all)")
 	outputDir := flag.String("output", "output", "Output directory for JSON files")
-	rateLimit := flag.Duration("rate", mfire.DefaultRateLimit, "Minimum delay between requests")
+	rateLimit := flag.Duration("rate", mfire.DefaultRateLimit, "Minimum delay between requests (serial only)")
 	maxRetries := flag.Int("retries", mfire.DefaultMaxRetries, "Max retry attempts on failure")
+	parallel := flag.Int("parallel", 4, "Number of concurrent detail workers (0 = serial)")
+	ratePerSec := flag.Int("rate-per-sec", 3, "Global rate limit in req/s (used with --parallel)")
 	flag.Parse()
 
-	// Validate flags
 	switch *mode {
 	case "list", "detail", "full", "search":
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown mode: %q. Valid: list, detail, full, search\n", *mode)
 		os.Exit(1)
 	}
-
 	if *mode == "search" && *searchQuery == "" {
 		fmt.Fprintf(os.Stderr, "--query is required for search mode\n")
 		os.Exit(1)
 	}
+	if *parallel < 0 {
+		*parallel = 1
+	}
 
-	// Ensure output dir exists.
 	if err := os.MkdirAll(*outputDir, 0755); err != nil {
 		log.Fatalf("Create output dir: %v", err)
 	}
@@ -56,101 +58,94 @@ func main() {
 	switch *mode {
 	case "list":
 		runList(client, writer, *limit, progress)
-
 	case "detail":
-		runDetail(client, writer, *outputDir, progress)
-
+		runDetail(client, *parallel, *ratePerSec, progress)
 	case "search":
 		runSearch(client, writer, *searchQuery, *limit, progress)
-
 	case "full":
-		runFull(client, writer, *limit, progress)
+		runFull(client, writer, *limit, *parallel, *ratePerSec, progress)
 	}
 }
 
 // runList fetches all manga and writes the listing.
-func runList(client *mfire.Client, writer *output.Writer, limit int, progress chan<- string) {
+func runList(client *mfire.Client, w *output.Writer, limit int, progress chan<- string) {
 	log.Println("Fetching all manga listing...")
 	items, pages, err := client.FetchAllManga(progress)
 	if err != nil {
 		log.Fatalf("FetchAllManga failed: %v", err)
 	}
-
 	if limit > 0 && len(items) > limit {
 		items = items[:limit]
 	}
-
 	log.Printf("Collected %d manga from %d pages", len(items), pages)
 
-	if err := writer.WriteMangaList(items); err != nil {
+	if err := w.WriteMangaList(items); err != nil {
 		log.Fatalf("Write manga list: %v", err)
 	}
-	log.Printf("Wrote manga list to %s", filepath.Join(writer.BaseDir, "manga.json"))
-
-	if err := writer.WriteIndex(len(items)); err != nil {
+	if err := w.WriteIndex(len(items)); err != nil {
 		log.Fatalf("Write index: %v", err)
 	}
-	log.Printf("Wrote index to %s", filepath.Join(writer.BaseDir, "index.json"))
+	log.Printf("Wrote listing (%d entries) and index", len(items))
 }
 
-// runDetail reads the existing manga list and fetches details for each.
-func runDetail(client *mfire.Client, writer *output.Writer, outputDir string, progress chan<- string) {
-	mangaFile := filepath.Join(outputDir, "manga.json")
-	items, err := readMangaList(mangaFile)
+// runDetail reads the manga list and fetches details, supporting resume.
+func runDetail(client *mfire.Client, parallel, ratePerSec int, progress chan<- string) {
+	if err := os.MkdirAll("output/manga", 0755); err != nil {
+		log.Fatalf("Create manga dir: %v", err)
+	}
+
+	items, err := readMangaList("output/manga.json")
 	if err != nil {
 		log.Fatalf("Read manga list: %v", err)
 	}
-
-	log.Printf("Fetching details for %d manga...", len(items))
 
 	slugs := make([]string, len(items))
 	for i, item := range items {
 		slugs[i] = item.Slug
 	}
 
-	details, err := client.FetchAllMangaDetails(slugs, progress)
-	if err != nil {
-		log.Fatalf("FetchAllMangaDetails failed: %v", err)
-	}
-
-	log.Printf("Fetched details for %d manga", len(details))
-
-	for _, d := range details {
-		if err := writer.WriteMangaDetail(d); err != nil {
-			log.Printf("Warning: write detail for %s: %v", d.Slug, err)
+	if parallel > 0 {
+		detailWriter := mfire.NewDirectDetailWriter("output")
+		fetched, err := client.FetchAllMangaDetailsParallel(slugs, parallel, ratePerSec, detailWriter, progress)
+		if err != nil {
+			log.Fatalf("Parallel detail fetch failed: %v", err)
 		}
+		log.Printf("Fetched %d new manga details (parallel=%d, rate=%d/s)", fetched, parallel, ratePerSec)
+	} else {
+		details, err := client.FetchAllMangaDetails(slugs, progress)
+		if err != nil {
+			log.Fatalf("Serial detail fetch failed: %v", err)
+		}
+		for _, d := range details {
+			if we := writeDetailFile("output", d); we != nil {
+				log.Printf("Warning: write %s: %v", d.Slug, we)
+			}
+		}
+		log.Printf("Fetched %d manga details (serial)", len(details))
 	}
-
-	log.Printf("Wrote %d detail files to %s", len(details), filepath.Join(writer.BaseDir, "manga"))
 }
 
-// runSearch performs a keyword search and writes results.
-func runSearch(client *mfire.Client, writer *output.Writer, query string, limit int, progress chan<- string) {
+// runSearch performs a keyword search.
+func runSearch(client *mfire.Client, w *output.Writer, query string, limit int, progress chan<- string) {
 	log.Printf("Searching for %q...", query)
-
 	items, err := client.SearchManga(query, limit)
 	if err != nil {
 		log.Fatalf("Search failed: %v", err)
 	}
-
 	log.Printf("Found %d results", len(items))
-
-	if err := writer.WriteMangaList(items); err != nil {
+	if err := w.WriteMangaList(items); err != nil {
 		log.Fatalf("Write search results: %v", err)
 	}
-	log.Printf("Wrote %d search results to manga.json", len(items))
 }
 
 // runFull runs list then detail.
-func runFull(client *mfire.Client, writer *output.Writer, limit int, progress chan<- string) {
+func runFull(client *mfire.Client, w *output.Writer, limit, parallel, ratePerSec int, progress chan<- string) {
 	start := time.Now()
 	log.Println("=== Starting full scrape ===")
 
-	runList(client, writer, limit, progress)
-
+	runList(client, w, limit, progress)
 	log.Println("=== List phase complete, starting detail phase ===")
-
-	runDetail(client, writer, writer.BaseDir, progress)
+	runDetail(client, parallel, ratePerSec, progress)
 
 	log.Printf("=== Full scrape complete in %s ===", time.Since(start).Round(time.Second))
 }
@@ -166,4 +161,17 @@ func readMangaList(path string) ([]mfire.MangaListItem, error) {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
 	return items, nil
+}
+
+// writeDetailFile writes a single manga detail JSON to output/manga/{slug}.json.
+func writeDetailFile(baseDir string, d mfire.MangaDetail) error {
+	dir := filepath.Join(baseDir, "manga")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	data, err := json.MarshalIndent(d, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, d.Slug+".json"), data, 0644)
 }
