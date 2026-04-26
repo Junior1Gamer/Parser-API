@@ -46,7 +46,7 @@ flowchart LR
     C -->|git push| D[output branch - GitHub Pages]
     D -->|serve| E[Consumer Apps]
     E -->|fetch manga.json| D
-    E -->|fetch manga/{slug}.json| D
+    E -->|"fetch manga/{slug}.json"| D
 ```
 
 ### Pipeline stages
