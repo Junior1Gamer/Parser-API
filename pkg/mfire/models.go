@@ -46,15 +46,7 @@ type PageImage struct {
 // IsScrambled returns true when the page image needs unscrambling.
 func (p PageImage) IsScrambled() bool { return p.ScrambledOffset > 0 }
 
-// ChapterPages holds the page image URLs for a single chapter.
-type ChapterPages struct {
-	Slug    string      `json:"slug"`
-	Chapter string      `json:"chapter"`
-	Title   string      `json:"title,omitempty"`
-	Pages   []PageImage `json:"pages"`
-}
-
-// ChapterPagesFile is the on-disk structure saved per chapter.
+// ChapterPagesFile holds the page image URLs for a single chapter.
 type ChapterPagesFile struct {
 	Slug    string      `json:"slug"`
 	Chapter string      `json:"chapter"`

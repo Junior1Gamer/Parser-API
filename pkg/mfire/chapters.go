@@ -86,13 +86,6 @@ func (c *Client) fetchPagesJSON(ajaxURL string) ([]PageImage, error) {
 // Chapter list via AJAX
 // ---------------------------------------------------------------------------
 
-// chapterBranch describes one chapter type/language branch.
-type chapterBranch struct {
-	Type     string
-	LangCode string
-	LangName string
-}
-
 // ajaxChapter represents a chapter returned by the AJAX endpoint.
 type ajaxChapter struct {
 	ID     string

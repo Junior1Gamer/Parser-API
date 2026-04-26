@@ -3,6 +3,7 @@ package mfire
 import (
 	"container/list"
 	"encoding/base64"
+	"log"
 	"strings"
 	"sync"
 )
@@ -15,6 +16,16 @@ import (
 
 func b64decode(s string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(s)
+}
+
+// mustB64 decodes a base64 string; panics if invalid. Used only for
+// hardcoded compile-time constants — a panic here means a developer typo.
+func mustB64(s string) []byte {
+	b, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		log.Panicf("invalid base64 constant: %v", err)
+	}
+	return b
 }
 
 func b64encodeURL(b []byte) string {
@@ -228,39 +239,39 @@ var (
 func generateVRF(input string) (string, error) {
 	bytes := []byte(input)
 
-	k1, _ := b64decode(rc4Keys["l"])
+	k1 := mustB64(rc4Keys["l"])
 	bytes = rc4(k1, bytes)
 
-	seedA, _ := b64decode(seeds32["A"])
-	prefO, _ := b64decode(prefixKeys["O"])
+	seedA := mustB64(seeds32["A"])
+	prefO := mustB64(prefixKeys["O"])
 	bytes = transform(bytes, seedA, prefO, 7, scheduleC())
 
-	k2, _ := b64decode(rc4Keys["g"])
+	k2 := mustB64(rc4Keys["g"])
 	bytes = rc4(k2, bytes)
 
-	seedV, _ := b64decode(seeds32["V"])
-	prefV, _ := b64decode(prefixKeys["v"])
+	seedV := mustB64(seeds32["V"])
+	prefV := mustB64(prefixKeys["v"])
 	bytes = transform(bytes, seedV, prefV, 10, scheduleY())
 
-	k3, _ := b64decode(rc4Keys["B"])
+	k3 := mustB64(rc4Keys["B"])
 	bytes = rc4(k3, bytes)
 
-	seedN, _ := b64decode(seeds32["N"])
-	prefL, _ := b64decode(prefixKeys["L"])
+	seedN := mustB64(seeds32["N"])
+	prefL := mustB64(prefixKeys["L"])
 	bytes = transform(bytes, seedN, prefL, 9, scheduleB())
 
-	k4, _ := b64decode(rc4Keys["m"])
+	k4 := mustB64(rc4Keys["m"])
 	bytes = rc4(k4, bytes)
 
-	seedP, _ := b64decode(seeds32["P"])
-	prefP, _ := b64decode(prefixKeys["p"])
+	seedP := mustB64(seeds32["P"])
+	prefP := mustB64(prefixKeys["p"])
 	bytes = transform(bytes, seedP, prefP, 7, scheduleJ())
 
-	k5, _ := b64decode(rc4Keys["F"])
+	k5 := mustB64(rc4Keys["F"])
 	bytes = rc4(k5, bytes)
 
-	seedK, _ := b64decode(seeds32["k"])
-	prefW, _ := b64decode(prefixKeys["W"])
+	seedK := mustB64(seeds32["k"])
+	prefW := mustB64(prefixKeys["W"])
 	bytes = transform(bytes, seedK, prefW, 5, scheduleE())
 
 	return b64encodeURL(bytes), nil

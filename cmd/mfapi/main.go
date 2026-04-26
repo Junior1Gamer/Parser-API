@@ -62,14 +62,15 @@ func main() {
 	case "list":
 		runList(client, writer, *limit, progress)
 	case "detail":
-		runDetail(client, *parallel, *ratePerSec, progress)
+		runDetail(client, *outputDir, *parallel, *ratePerSec, progress)
 	case "search":
 		runSearch(client, writer, *searchQuery, *limit, progress)
 	case "chapters":
 		runChapters(client, *outputDir, *mangaSlug, *chapterType, *chapterLang, *parallel, *ratePerSec, *limit, progress)
 	case "full":
-		runFull(client, writer, *limit, *parallel, *ratePerSec, progress)
+		runFull(client, writer, *outputDir, *limit, *parallel, *ratePerSec, progress)
 	}
+	close(progress)
 }
 
 // runList fetches all manga and writes the listing.
@@ -94,12 +95,13 @@ func runList(client *mfire.Client, w *output.Writer, limit int, progress chan<- 
 }
 
 // runDetail reads the manga list and fetches details, supporting resume.
-func runDetail(client *mfire.Client, parallel, ratePerSec int, progress chan<- string) {
-	if err := os.MkdirAll("output/manga", 0755); err != nil {
+func runDetail(client *mfire.Client, outputDir string, parallel, ratePerSec int, progress chan<- string) {
+	mangaDir := filepath.Join(outputDir, "manga")
+	if err := os.MkdirAll(mangaDir, 0755); err != nil {
 		log.Fatalf("Create manga dir: %v", err)
 	}
 
-	items, err := readMangaList("output/manga.json")
+	items, err := readMangaList(filepath.Join(outputDir, "manga.json"))
 	if err != nil {
 		log.Fatalf("Read manga list: %v", err)
 	}
@@ -110,7 +112,7 @@ func runDetail(client *mfire.Client, parallel, ratePerSec int, progress chan<- s
 	}
 
 	if parallel > 0 {
-		detailWriter := mfire.NewDirectDetailWriter("output")
+		detailWriter := mfire.NewDirectDetailWriter(outputDir)
 		fetched, err := client.FetchAllMangaDetailsParallel(slugs, parallel, ratePerSec, detailWriter, progress)
 		if err != nil {
 			log.Fatalf("Parallel detail fetch failed: %v", err)
@@ -122,7 +124,7 @@ func runDetail(client *mfire.Client, parallel, ratePerSec int, progress chan<- s
 			log.Fatalf("Serial detail fetch failed: %v", err)
 		}
 		for _, d := range details {
-			if we := writeDetailFile("output", d); we != nil {
+			if we := writeDetailFile(outputDir, d); we != nil {
 				log.Printf("Warning: write %s: %v", d.Slug, we)
 			}
 		}
@@ -144,11 +146,9 @@ func runSearch(client *mfire.Client, w *output.Writer, query string, limit int, 
 }
 
 // runChapters fetches page image URLs for one or all manga's chapters.
-// If --slug is set, only that manga is processed; otherwise all manga from
-// the manga.json listing are iterated.
 func runChapters(client *mfire.Client, outputDir, slug, chapType, chapLang string, parallel, ratePerSec, limit int, progress chan<- string) {
 	if slug != "" {
-		runChapterForSlug(client, slug, chapType, chapLang, parallel, ratePerSec, progress)
+		runChapterForSlug(client, outputDir, slug, chapType, chapLang, parallel, ratePerSec, progress)
 		return
 	}
 
@@ -188,10 +188,10 @@ func runChapters(client *mfire.Client, outputDir, slug, chapType, chapLang strin
 }
 
 // runChapterForSlug processes a single manga slug.
-func runChapterForSlug(client *mfire.Client, slug, chapType, chapLang string, parallel, ratePerSec int, progress chan<- string) {
+func runChapterForSlug(client *mfire.Client, outputDir, slug, chapType, chapLang string, parallel, ratePerSec int, progress chan<- string) {
 	log.Printf("Fetching chapter pages for %s...", slug)
 	start := time.Now()
-	skipped := writeChapterPagesForSlug(client, "output", slug, chapType, chapLang, parallel, ratePerSec, progress)
+	skipped := writeChapterPagesForSlug(client, outputDir, slug, chapType, chapLang, parallel, ratePerSec, progress)
 	log.Printf("%s: %d chapter files (%d skipped, took %s)",
 		slug, skipped.total, skipped.skipped, time.Since(start).Round(time.Second))
 }
@@ -241,13 +241,13 @@ func writeChapterPagesForSlug(client *mfire.Client, outputDir, slug, chapType, c
 }
 
 // runFull runs list then detail.
-func runFull(client *mfire.Client, w *output.Writer, limit, parallel, ratePerSec int, progress chan<- string) {
+func runFull(client *mfire.Client, w *output.Writer, outputDir string, limit, parallel, ratePerSec int, progress chan<- string) {
 	start := time.Now()
 	log.Println("=== Starting full scrape ===")
 
 	runList(client, w, limit, progress)
 	log.Println("=== List phase complete, starting detail phase ===")
-	runDetail(client, parallel, ratePerSec, progress)
+	runDetail(client, outputDir, parallel, ratePerSec, progress)
 
 	log.Printf("=== Full scrape complete in %s ===", time.Since(start).Round(time.Second))
 }

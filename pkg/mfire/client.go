@@ -68,9 +68,11 @@ func NewClient() *Client {
 }
 
 // SetRateLimit adjusts the delay between requests.
+// Must be called before any concurrent use.
 func (c *Client) SetRateLimit(d time.Duration) { c.rateLimit = d }
 
 // SetMaxRetries adjusts the number of retry attempts on failure.
+// Must be called before any concurrent use.
 func (c *Client) SetMaxRetries(n int) { c.maxRetries = n }
 
 // throttle ensures we don't exceed the rate limit.
@@ -99,113 +101,94 @@ func (c *Client) newRequest(rawURL string) (*http.Request, error) {
 }
 
 // ---------------------------------------------------------------------------
+// shared low-level fetch helpers
+// ---------------------------------------------------------------------------
+
+// doRequest makes a single HTTP GET with a DefaultTimeout context deadline and
+// returns the raw body, HTTP status code, and any error. It does NOT retry.
+// When ajax is true the request is sent with JSON / X-Requested-With headers.
+func (c *Client) doRequest(rawURL string, ajax bool) (body []byte, statusCode int, err error) {
+	req, err := c.newRequest(rawURL)
+	if err != nil {
+		return nil, 0, fmt.Errorf("create request: %w", err)
+	}
+	if ajax {
+		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
+		req.Header.Set("X-Requested-With", "XMLHttpRequest")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	defer cancel()
+	req = req.WithContext(ctx)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, 0, fmt.Errorf("http do: %w", err)
+	}
+
+	body, err = io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return nil, 0, fmt.Errorf("read body: %w", err)
+	}
+
+	return body, resp.StatusCode, nil
+}
+
+// fetchWithRetry runs doRequest inside the standard retry loop. It handles
+// rate-limit (429/503), Cloudflare 403, and general >=400 status codes.
+// On success the raw body bytes are returned.
+func (c *Client) fetchWithRetry(rawURL string, ajax bool) ([]byte, error) {
+	var lastErr error
+	for attempt := 0; attempt < c.maxRetries; attempt++ {
+		c.throttle()
+
+		body, status, err := c.doRequest(rawURL, ajax)
+		if err != nil {
+			lastErr = fmt.Errorf("attempt %d: %w", attempt+1, err)
+			c.backoff(attempt)
+			continue
+		}
+
+		switch {
+		case status == 429 || status == 503:
+			lastErr = fmt.Errorf("attempt %d: rate limited (HTTP %d)", attempt+1, status)
+			c.backoff(attempt)
+			continue
+		case status == 403:
+			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
+			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
+			continue
+		case status >= 400:
+			return nil, fmt.Errorf("attempt %d: bad status %d: %s", attempt+1, status, truncate(string(body), 200))
+		}
+
+		return body, nil
+	}
+	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
+}
+
+// ---------------------------------------------------------------------------
 // public fetch methods
 // ---------------------------------------------------------------------------
 
 // FetchDocument fetches a URL and returns a goquery document, with retry and
 // 403 backoff.
 func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
-	var lastErr error
-	for attempt := 0; attempt < c.maxRetries; attempt++ {
-		c.throttle()
-
-		req, err := c.newRequest(rawURL)
-		if err != nil {
-			return nil, fmt.Errorf("create request: %w", err)
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-		req = req.WithContext(ctx)
-		resp, err := c.http.Do(req)
-
-		if err != nil {
-			cancel()
-			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
-			c.backoff(attempt)
-			continue
-		}
-
-		body, readErr := io.ReadAll(resp.Body)
-		resp.Body.Close()
-		cancel() // cancel AFTER body read — cancelling earlier invalidates the stream
-		if readErr != nil {
-			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, readErr)
-			c.backoff(attempt)
-			continue
-		}
-
-		switch {
-		case resp.StatusCode == 429 || resp.StatusCode == 503:
-			lastErr = fmt.Errorf("attempt %d: rate limited (%s)", attempt+1, resp.Status)
-			c.backoff(attempt)
-			continue
-		case resp.StatusCode == 403:
-			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
-			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
-			continue
-		case resp.StatusCode >= 400:
-			return nil, fmt.Errorf("attempt %d: bad status %s: %s", attempt+1, resp.Status, truncate(string(body), 200))
-		}
-
-		doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
-		if err != nil {
-			return nil, fmt.Errorf("parse html: %w", err)
-		}
-		return doc, nil
+	body, err := c.fetchWithRetry(rawURL, false)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	if err != nil {
+		return nil, fmt.Errorf("parse html: %w", err)
+	}
+	return doc, nil
 }
 
 // FetchJSON fetches a URL and returns the raw response body with JSON headers.
 func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
-	// We need different request headers for JSON. Reuse the retry loop but
-	// use a wrapper that rebuilds the request with JSON headers.
-	var lastErr error
-	for attempt := 0; attempt < c.maxRetries; attempt++ {
-		c.throttle()
-
-		req, err := c.newRequest(rawURL)
-		if err != nil {
-			return nil, fmt.Errorf("create request: %w", err)
-		}
-		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
-		req.Header.Set("X-Requested-With", "XMLHttpRequest")
-
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-		defer cancel()
-		req = req.WithContext(ctx)
-
-		resp, err := c.http.Do(req)
-		if err != nil {
-			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
-			c.backoff(attempt)
-			continue
-		}
-
-		body, readErr := io.ReadAll(resp.Body)
-		resp.Body.Close()
-		if readErr != nil {
-			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, readErr)
-			c.backoff(attempt)
-			continue
-		}
-
-		switch {
-		case resp.StatusCode == 429 || resp.StatusCode == 503:
-			lastErr = fmt.Errorf("attempt %d: rate limited (%s)", attempt+1, resp.Status)
-			c.backoff(attempt)
-			continue
-		case resp.StatusCode == 403:
-			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
-			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
-			continue
-		case resp.StatusCode >= 400:
-			return nil, fmt.Errorf("attempt %d: bad status %s: %s", attempt+1, resp.Status, truncate(string(body), 200))
-		}
-
-		return body, nil
-	}
-	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
+	return c.fetchWithRetry(rawURL, true)
 }
 
 // FetchDocumentWithVRF fetches a URL that requires a VRF token. It appends
@@ -215,13 +198,11 @@ func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.D
 	if err != nil {
 		return nil, fmt.Errorf("generate vrf: %w", err)
 	}
-
 	sep := "?"
 	if strings.Contains(rawURL, "?") {
 		sep = "&"
 	}
 	vrfURL := rawURL + sep + "vrf=" + url.QueryEscape(vrfToken)
-
 	return c.FetchDocument(vrfURL)
 }
 

@@ -11,11 +11,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const (
-	filterURL = "https://mangafire.to/filter"
-	// itemsPerPage is how many manga cards appear on a filter page.
-	itemsPerPage = 30
-)
+const filterURL = "https://mangafire.to/filter"
 
 // FetchAllManga lists every manga available on mangafire.to by walking every
 // page of the /filter endpoint. It returns a slice of MangaListItem and the
@@ -192,8 +188,10 @@ func (c *Client) SearchManga(keyword string, limit int) ([]MangaListItem, error)
 		return nil, fmt.Errorf("empty keyword")
 	}
 
-	// Preflight: fetch the filter page to set cookies / session state.
-	_, _ = c.FetchDocument(filterURL)
+	// Preflight: warm up the session / Cloudflare challenge.
+	if _, err := c.FetchDocument(filterURL); err != nil {
+		log.Printf("Warning: search preflight failed: %v; continuing anyway", err)
+	}
 
 	// Build the search URL with VRF token.
 	parts := strings.Fields(keyword)

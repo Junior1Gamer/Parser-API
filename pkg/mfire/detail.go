@@ -40,15 +40,29 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 
 	// --- Title ---
 	result.Title = strings.TrimSpace(doc.Find("h1[itemprop=name]").First().Text())
+
+	// Guard: a valid manga page must have a title. If the page is a
+	// Cloudflare challenge or error page, skip early.
 	if result.Title == "" {
+		// Try OG meta fallback.
 		doc.Find("meta[property='og:title']").Each(func(_ int, s *goquery.Selection) {
 			if c, ok := s.Attr("content"); ok {
 				result.Title = strings.TrimSpace(c)
 			}
 		})
 	}
+	// If still empty, this is likely not a real manga page.
 	if result.Title == "" {
+		// One last attempt: generic h1.
 		result.Title = strings.TrimSpace(doc.Find("h1").First().Text())
+	}
+	if result.Title == "" {
+		// Check for known "not found" indicators.
+		bodyText := strings.TrimSpace(doc.Find("body").Text())
+		if strings.Contains(bodyText, "404") || strings.Contains(bodyText, "not found") || strings.Contains(bodyText, "Page not") {
+			return nil, fmt.Errorf("page appears to be an error/not-found page")
+		}
+		return nil, fmt.Errorf("page has no title — likely not a valid manga detail page")
 	}
 
 	// --- Cover image ---
