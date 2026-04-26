@@ -88,10 +88,10 @@ func runList(client *mfire.Client, w *output.Writer, limit int, progress chan<- 
 	if err := w.WriteMangaList(items); err != nil {
 		log.Fatalf("Write manga list: %v", err)
 	}
-	if err := w.WriteIndex(len(items)); err != nil {
-		log.Fatalf("Write index: %v", err)
+	if err := w.WriteMetadata(len(items)); err != nil {
+		log.Fatalf("Write metadata: %v", err)
 	}
-	log.Printf("Wrote listing (%d entries) and index", len(items))
+	log.Printf("Wrote listing (%d entries) and metadata", len(items))
 }
 
 // runDetail reads the manga list and fetches details, supporting resume.

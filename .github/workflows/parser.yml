@@ -72,9 +72,9 @@ jobs:
             --parallel 4 \
             --rate-per-sec 3
 
-      - name: Generate index metadata
+      - name: Generate metadata
         run: |
-          echo "{\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"total_manga\":$(cat output/manga.json | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")}" > output/index.json
+          echo "{\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"total_manga\":$(cat output/manga.json | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")}" > output/metadata.json
 
       - name: Deploy to output branch
         uses: peaceiris/actions-gh-pages@v4

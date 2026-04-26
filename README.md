@@ -23,7 +23,7 @@ served from a static branch — zero infrastructure cost, zero maintenance.
 
 | File / Directory | Description |
 |---|---|
-| `index.json` | Dataset metadata (timestamp, count) |
+| `metadata.json` | Dataset metadata (timestamp, count) |
 | `manga.json` | Full listing: `[{slug, title, cover, url}]` |
 | `manga/{slug}.json` | Per-manga detail including chapters |
 | `manga/{slug}/chapters/{num}.json` | Page image URLs for a single chapter |

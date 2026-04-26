@@ -54,8 +54,8 @@ type ChapterPagesFile struct {
 	Pages   []PageImage `json:"pages"`
 }
 
-// IndexMeta is the top-level metadata for the output dataset.
-type IndexMeta struct {
+// Metadata is the top-level metadata for the output dataset.
+type Metadata struct {
 	GeneratedAt   string `json:"generated_at"`
 	TotalManga    int    `json:"total_manga"`
 	MangaFile     string `json:"manga_file"`
