@@ -1,6 +1,6 @@
 # MF-API
 
-A scheduled Go scraper that extracts manga metadata from [MangaFire](https://mangafire.to)
+A Go scraper that extracts manga metadata from [MangaFire](https://mangafire.to)
 and publishes structured JSON files as a static API via GitHub Pages.
 
 > [!IMPORTANT]
@@ -42,16 +42,11 @@ https://junior1gamer.github.io/MF-API/manga/{slug}.json
 ```mermaid
 flowchart LR
     A[MangaFire.to] -->|scrape| B[Go Parser]
-    B -->|JSON files| C[output/ directory]
-    C -->|push| D[output branch<br/>github-pages]
+    B -->|JSON files| C[output directory]
+    C -->|git push| D[output branch - GitHub Pages]
     D -->|serve| E[Consumer Apps]
-    E -->|fetch /manga.json| D
-    E -->|fetch /manga/{slug}.json| D
-
-    style A fill:#4a4a4a,color:#fff
-    style B fill:#00add8,color:#fff
-    style D fill:#2da44e,color:#fff
-    style E fill:#8250df,color:#fff
+    E -->|fetch manga.json| D
+    E -->|fetch manga/{slug}.json| D
 ```
 
 ### Pipeline stages
@@ -63,7 +58,7 @@ sequenceDiagram
     participant MF as MangaFire
     participant BP as output Branch
 
-    GH->>P: Run daily (04:17 UTC)
+    GH->>P: Run manually via workflow_dispatch
     P->>MF: Fetch /filter?page=N (all pages)
     MF-->>P: HTML listing (slug, title, cover)
     P->>P: Write manga.json
@@ -126,7 +121,7 @@ showDetail(manga.title, manga.description, manga.chapters);
 
 ```
 MF-API/
-├── .github/workflows/parser.yml   # Daily pipeline
+    ├── .github/workflows/parser.yml   # Manual-trigger pipeline
 ├── cmd/mfapi/main.go               # CLI entry point
 ├── pkg/
 │   ├── mfire/
