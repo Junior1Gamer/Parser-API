@@ -1,7 +1,7 @@
 package mfire
 
 import (
-	"context"
+	"bytes"
 	"fmt"
 	"io"
 	"math"
@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gocolly/colly/v2"
 )
 
 // Defaults
@@ -24,18 +25,19 @@ const (
 	DefaultMaxRetries = 3
 )
 
-// Client is an HTTP client for mangafire.to with built-in retry, rate
-// limiting, and Cloudflare 403 handling.
+// Client is an HTTP client for mangafire.to backed by GoColly.
+// It handles rate limiting, retries, Cloudflare 403 backoff, and HTML parsing.
 type Client struct {
-	http       *http.Client
-	rateLimit  time.Duration
-	maxRetries int
+	baseCollector *colly.Collector
+	httpClient    *http.Client // backing client shared by all collectors
+	rateLimit     time.Duration
+	maxRetries    int
 
 	mu       sync.Mutex
 	lastCall time.Time
 }
 
-// NewClient creates a new Client with the given options.
+// NewClient creates a new Client.
 func NewClient() *Client {
 	jar, _ := cookiejar.New(nil)
 	tr := &http.Transport{
@@ -50,20 +52,29 @@ func NewClient() *Client {
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
 	}
-	return &Client{
-		http: &http.Client{
-			Transport: tr,
-			Timeout:   DefaultTimeout,
-			Jar:       jar,
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				if len(via) >= 5 {
-					return fmt.Errorf("too many redirects")
-				}
-				return nil
-			},
+	hc := &http.Client{
+		Transport: tr,
+		Timeout:   DefaultTimeout,
+		Jar:       jar,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 5 {
+				return fmt.Errorf("too many redirects")
+			}
+			return nil
 		},
-		rateLimit:  DefaultRateLimit,
-		maxRetries: DefaultMaxRetries,
+	}
+
+	base := colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"),
+		colly.AllowURLRevisit(),
+	)
+	base.SetClient(hc)
+
+	return &Client{
+		baseCollector: base,
+		httpClient:    hc,
+		rateLimit:     DefaultRateLimit,
+		maxRetries:    DefaultMaxRetries,
 	}
 }
 
@@ -75,7 +86,7 @@ func (c *Client) SetRateLimit(d time.Duration) { c.rateLimit = d }
 // Must be called before any concurrent use.
 func (c *Client) SetMaxRetries(n int) { c.maxRetries = n }
 
-// throttle ensures we don't exceed the rate limit.
+// throttle ensures we don't exceed the serial rate limit.
 func (c *Client) throttle() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -86,64 +97,52 @@ func (c *Client) throttle() {
 	c.lastCall = time.Now()
 }
 
-// newRequest creates an HTTP GET request with standard headers.
-func (c *Client) newRequest(rawURL string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", rawURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("Referer", "https://mangafire.to/")
-	req.Header.Set("Upgrade-Insecure-Requests", "1")
-	return req, nil
+// freshCollector returns a cloned collector that shares the underlying HTTP
+// client and transport. Clone is colly's recommended pattern for per-request
+// callbacks — it avoids stale-callback accumulation on a shared instance.
+func (c *Client) freshCollector() *colly.Collector {
+	return c.baseCollector.Clone()
 }
 
-// ---------------------------------------------------------------------------
-// shared low-level fetch helpers
-// ---------------------------------------------------------------------------
+// doRawRequest performs a single HTTP GET via a fresh cloned collector and
+// returns the raw body bytes, HTTP status, and any error.  It does NOT retry.
+func (c *Client) doRawRequest(rawURL string) (body []byte, statusCode int, err error) {
+	ctx := c.freshCollector()
 
-// doRequest makes a single HTTP GET with a DefaultTimeout context deadline and
-// returns the raw body, HTTP status code, and any error. It does NOT retry.
-// When ajax is true the request is sent with JSON / X-Requested-With headers.
-func (c *Client) doRequest(rawURL string, ajax bool) (body []byte, statusCode int, err error) {
-	req, err := c.newRequest(rawURL)
-	if err != nil {
-		return nil, 0, fmt.Errorf("create request: %w", err)
+	var (
+		mu      sync.Mutex
+		respErr error
+	)
+	ctx.OnResponse(func(r *colly.Response) {
+		mu.Lock()
+		body = r.Body
+		statusCode = r.StatusCode
+		mu.Unlock()
+	})
+	ctx.OnError(func(r *colly.Response, rerr error) {
+		mu.Lock()
+		respErr = rerr
+		mu.Unlock()
+	})
+
+	if err := ctx.Visit(rawURL); err != nil {
+		return nil, 0, err
 	}
-	if ajax {
-		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
-		req.Header.Set("X-Requested-With", "XMLHttpRequest")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
-	defer cancel()
-	req = req.WithContext(ctx)
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, 0, fmt.Errorf("http do: %w", err)
-	}
-
-	body, err = io.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		return nil, 0, fmt.Errorf("read body: %w", err)
-	}
-
-	return body, resp.StatusCode, nil
+	mu.Lock()
+	err = respErr
+	mu.Unlock()
+	return
 }
 
-// fetchWithRetry runs doRequest inside the standard retry loop. It handles
+// fetchWithRetry runs doRawRequest inside the standard retry loop. It handles
 // rate-limit (429/503), Cloudflare 403, and general >=400 status codes.
 // On success the raw body bytes are returned.
-func (c *Client) fetchWithRetry(rawURL string, ajax bool) ([]byte, error) {
+func (c *Client) fetchWithRetry(rawURL string) ([]byte, error) {
 	var lastErr error
 	for attempt := 0; attempt < c.maxRetries; attempt++ {
 		c.throttle()
 
-		body, status, err := c.doRequest(rawURL, ajax)
+		body, status, err := c.doRawRequest(rawURL)
 		if err != nil {
 			lastErr = fmt.Errorf("attempt %d: %w", attempt+1, err)
 			c.backoff(attempt)
@@ -175,24 +174,69 @@ func (c *Client) fetchWithRetry(rawURL string, ajax bool) ([]byte, error) {
 // FetchDocument fetches a URL and returns a goquery document, with retry and
 // 403 backoff.
 func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
-	body, err := c.fetchWithRetry(rawURL, false)
+	body, err := c.fetchWithRetry(rawURL)
 	if err != nil {
 		return nil, err
 	}
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("parse html: %w", err)
 	}
 	return doc, nil
 }
 
-// FetchJSON fetches a URL and returns the raw response body with JSON headers.
+// FetchJSON fetches a URL and returns the raw response body. Unlike
+// FetchDocument it sends AJAX headers. Because colly's built-in
+// OnResponse does not let us customise request headers per-collector
+// easily, we use the backing httpClient directly.
 func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
-	return c.fetchWithRetry(rawURL, true)
+	var lastErr error
+	for attempt := 0; attempt < c.maxRetries; attempt++ {
+		c.throttle()
+
+		req, err := http.NewRequest("GET", rawURL, nil)
+		if err != nil {
+			return nil, fmt.Errorf("create request: %w", err)
+		}
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
+		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
+		req.Header.Set("X-Requested-With", "XMLHttpRequest")
+		req.Header.Set("Referer", "https://mangafire.to/")
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
+			c.backoff(attempt)
+			continue
+		}
+
+		body, readErr := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if readErr != nil {
+			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, readErr)
+			c.backoff(attempt)
+			continue
+		}
+
+		switch {
+		case resp.StatusCode == 429 || resp.StatusCode == 503:
+			lastErr = fmt.Errorf("attempt %d: rate limited (HTTP %d)", attempt+1, resp.StatusCode)
+			c.backoff(attempt)
+			continue
+		case resp.StatusCode == 403:
+			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
+			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
+			continue
+		case resp.StatusCode >= 400:
+			return nil, fmt.Errorf("attempt %d: bad status %d: %s", attempt+1, resp.StatusCode, truncate(string(body), 200))
+		}
+
+		return body, nil
+	}
+	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
 }
 
-// FetchDocumentWithVRF fetches a URL that requires a VRF token. It appends
-// the vrf parameter using the provided keyword.
+// FetchDocumentWithVRF fetches a URL that requires a VRF token.
 func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.Document, error) {
 	vrfToken, err := VRF(keyword)
 	if err != nil {
@@ -206,8 +250,7 @@ func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.D
 	return c.FetchDocument(vrfURL)
 }
 
-// backoff sleeps with exponential backoff + jitter. The first wait is ~2 s,
-// second is ~4 s. The third attempt has no backoff since it's the last.
+// backoff sleeps with exponential backoff + jitter.
 func (c *Client) backoff(attempt int) {
 	if attempt >= c.maxRetries-1 {
 		return
