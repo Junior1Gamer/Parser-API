@@ -176,6 +176,10 @@ go run ./cmd/mfapi/ --mode chapters --slug one-piece.1 --parallel 4 --rate-per-s
 # Fetch chapter page images for ALL manga (reads manga.json internally)
 go run ./cmd/mfapi/ --mode chapters --output output --parallel 4 --rate-per-sec 3
 
+# Or run both listing + detail in one go
+go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
+```
+
 > [!NOTE]
 > **Chapter pages are not included in the automatic daily workflow.**
 > The `--mode chapters` phase is separate because fetching page URLs for every
