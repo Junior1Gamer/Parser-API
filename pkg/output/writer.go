@@ -3,7 +3,6 @@ package output
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -46,19 +45,11 @@ func (w *Writer) WriteMangaDetail(detail mfire.MangaDetail) error {
 // writeJSON marshals v as indented JSON and writes it to relPath under BaseDir.
 func (w *Writer) writeJSON(relPath string, v interface{}) error {
 	fullPath := filepath.Join(w.BaseDir, relPath)
-	dir := filepath.Dir(fullPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("create dir %s: %w", dir, err)
-	}
 
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal json: %w", err)
 	}
 
-	if err := os.WriteFile(fullPath, data, 0644); err != nil {
-		return fmt.Errorf("write file %s: %w", fullPath, err)
-	}
-
-	return nil
+	return mfire.WriteFileAtomic(fullPath, data, 0644)
 }

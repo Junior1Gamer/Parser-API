@@ -31,6 +31,24 @@ jobs:
       - name: Build parser binary
         run: go build -o mfapi ./cmd/mfapi/
 
+      - name: Restore manga detail checkpoints from output branch
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: output
+          path: prev_output
+
+      - name: Copy checkpoint files into workspace
+        run: |
+          mkdir -p output
+          if [ -d prev_output/manga ]; then
+            cp -r prev_output/manga output/manga/
+            echo "Restored checkpoint: $(find output/manga -name '*.json' | wc -l) detail files"
+          else
+            echo "No checkpoint found (first run or empty output branch)"
+          fi
+          rm -rf prev_output
+
       - name: Run list phase (fetch all manga slugs)
         run: |
           mkdir -p output/manga

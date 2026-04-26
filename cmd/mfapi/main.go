@@ -220,17 +220,13 @@ func writeChapterPagesForSlug(client *mfire.Client, outputDir, slug, chapType, c
 
 	written := 0
 	for _, cp := range results {
-		dir := filepath.Join(outputDir, "manga", slug, "chapters")
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			log.Printf("Warning: mkdir %s: %v", dir, err)
-			continue
-		}
+		p := filepath.Join(outputDir, "manga", slug, "chapters", cp.Chapter+".json")
 		data, err := json.MarshalIndent(cp, "", "  ")
 		if err != nil {
 			log.Printf("Warning: marshal %s ch %s: %v", slug, cp.Chapter, err)
 			continue
 		}
-		if err := os.WriteFile(filepath.Join(dir, cp.Chapter+".json"), data, 0644); err != nil {
+		if err := mfire.WriteFileAtomic(p, data, 0644); err != nil {
 			log.Printf("Warning: write %s ch %s: %v", slug, cp.Chapter, err)
 			continue
 		}
@@ -282,22 +278,10 @@ func readMangaList(path string) ([]mfire.MangaListItem, error) {
 // atomically (temp file + rename) so a mid-write kill never leaves a partial
 // file that resume logic would incorrectly treat as complete.
 func writeDetailFile(baseDir string, d mfire.MangaDetail) error {
-	dir := filepath.Join(baseDir, "manga")
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
+	p := filepath.Join(baseDir, "manga", d.Slug+".json")
 	data, err := json.MarshalIndent(d, "", "  ")
 	if err != nil {
 		return err
 	}
-	p := filepath.Join(dir, d.Slug+".json")
-	tmp := p + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
-		return fmt.Errorf("write temp: %w", err)
-	}
-	if err := os.Rename(tmp, p); err != nil {
-		os.Remove(tmp)
-		return fmt.Errorf("rename: %w", err)
-	}
-	return nil
+	return mfire.WriteFileAtomic(p, data, 0644)
 }

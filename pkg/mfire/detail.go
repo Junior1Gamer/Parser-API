@@ -372,22 +372,10 @@ func (w *DirectDetailWriter) DetailExists(slug string) bool {
 // to baseDir/manga/{slug}.json via a temp file + rename. This prevents
 // partial/corrupt files if the process is killed mid-write.
 func (w *DirectDetailWriter) WriteDetail(detail MangaDetail) error {
-	dir := filepath.Join(w.BaseDir, "manga")
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("mkdir: %w", err)
-	}
+	p := filepath.Join(w.BaseDir, "manga", detail.Slug+".json")
 	data, err := json.MarshalIndent(detail, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
 	}
-	p := filepath.Join(dir, detail.Slug+".json")
-	tmp := p + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
-		return fmt.Errorf("write temp: %w", err)
-	}
-	if err := os.Rename(tmp, p); err != nil {
-		os.Remove(tmp)
-		return fmt.Errorf("rename: %w", err)
-	}
-	return nil
+	return WriteFileAtomic(p, data, 0644)
 }
