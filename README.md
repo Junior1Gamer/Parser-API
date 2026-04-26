@@ -92,7 +92,7 @@ sequenceDiagram
 
 - **No backend to maintain** — consume the JSON directly from GitHub Pages
 - **CORS-friendly** — GitHub Pages serves with permissive CORS headers
-- **Static = fast** — files are CDN-cached by GitHub's Fastly edge
+- **Static = fast** — files are CDN-cached (GitHub Pages uses Fastly)
 - **Predictable schema** — every manga has a stable slug-based URL
 
 ### Example use cases
