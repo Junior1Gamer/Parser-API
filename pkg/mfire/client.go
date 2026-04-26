@@ -1,10 +1,12 @@
 package mfire
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"math"
 	"math/rand"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -37,9 +39,16 @@ type Client struct {
 func NewClient() *Client {
 	jar, _ := cookiejar.New(nil)
 	tr := &http.Transport{
-		MaxIdleConns:        20,
-		MaxIdleConnsPerHost: 10,
-		IdleConnTimeout:     90 * time.Second,
+		MaxIdleConns:         20,
+		MaxIdleConnsPerHost:  10,
+		IdleConnTimeout:      90 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+		ExpectContinueTimeout: 10 * time.Second,
+		TLSHandshakeTimeout:   15 * time.Second,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
 	}
 	return &Client{
 		http: &http.Client{
@@ -95,7 +104,8 @@ func (c *Client) newRequest(rawURL string) (*http.Request, error) {
 }
 
 // FetchDocument fetches a URL and returns a goquery document, with retry and
-// 403 backoff.
+// 403 backoff. Each attempt has a context deadline of 45 seconds as a safety
+// net against unresponsive servers (tarpit / connection hang).
 func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 	var lastErr error
 	for attempt := 0; attempt < c.maxRetries; attempt++ {
@@ -106,7 +116,11 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 			return nil, fmt.Errorf("create request: %w", err)
 		}
 
+		// Per-request context deadline prevents indefinite hangs.
+		ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+		req = req.WithContext(ctx)
 		resp, err := c.http.Do(req)
+		cancel()
 		if err != nil {
 			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
 			c.backoff(attempt)
@@ -163,7 +177,10 @@ func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
 		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
 		req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
+		ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+		req = req.WithContext(ctx)
 		resp, err := c.http.Do(req)
+		cancel()
 		if err != nil {
 			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
 			c.backoff(attempt)

@@ -128,13 +128,16 @@ func extractTotalPages(doc *goquery.Document) int {
 }
 
 // parseMangaCards extracts MangaListItems from a filter (or similar listing)
-// page.
+// page. Duplicates (same slug from multiple matching elements per card) are
+// silently discarded.
 func parseMangaCards(doc *goquery.Document, page int) []MangaListItem {
 	var items []MangaListItem
+	seen := make(map[string]bool)
 
 	// The listing typically has div.unit or similar card containers.
 	// Selector strategy: find anchor tags that link to /manga/ and have
-	// poster images.
+	// poster images. We deduplicate by slug because each manga card has
+	// both a poster link and a title link matching the selector.
 	doc.Find("a[href*='/manga/']").Each(func(_ int, s *goquery.Selection) {
 		href, ok := s.Attr("href")
 		if !ok {
@@ -147,6 +150,12 @@ func parseMangaCards(doc *goquery.Document, page int) []MangaListItem {
 		if slug == "" {
 			return
 		}
+
+		// Deduplicate by slug.
+		if seen[slug] {
+			return
+		}
+		seen[slug] = true
 
 		// Extract title — prefer title attribute, then img alt, then text.
 		title := strings.TrimSpace(s.AttrOr("title", ""))

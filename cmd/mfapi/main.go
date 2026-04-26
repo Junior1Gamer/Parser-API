@@ -252,15 +252,28 @@ func runFull(client *mfire.Client, w *output.Writer, limit, parallel, ratePerSec
 	log.Printf("=== Full scrape complete in %s ===", time.Since(start).Round(time.Second))
 }
 
-// readMangaList reads the manga listing from a JSON file.
+// readMangaList reads the manga listing from a JSON file. Duplicate slugs
+// are silently discarded to handle pre‑dedup listings from earlier runs.
 func readMangaList(path string) ([]mfire.MangaListItem, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
-	var items []mfire.MangaListItem
-	if err := json.Unmarshal(data, &items); err != nil {
+	var raw []mfire.MangaListItem
+	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
+	}
+	seen := make(map[string]bool, len(raw))
+	items := make([]mfire.MangaListItem, 0, len(raw))
+	for _, item := range raw {
+		if seen[item.Slug] {
+			continue
+		}
+		seen[item.Slug] = true
+		items = append(items, item)
+	}
+	if len(items) != len(raw) {
+		log.Printf("Deduplicated manga list: %d → %d entries", len(raw), len(items))
 	}
 	return items, nil
 }
