@@ -278,7 +278,9 @@ func readMangaList(path string) ([]mfire.MangaListItem, error) {
 	return items, nil
 }
 
-// writeDetailFile writes a single manga detail JSON to output/manga/{slug}.json.
+// writeDetailFile writes a single manga detail JSON to output/manga/{slug}.json
+// atomically (temp file + rename) so a mid-write kill never leaves a partial
+// file that resume logic would incorrectly treat as complete.
 func writeDetailFile(baseDir string, d mfire.MangaDetail) error {
 	dir := filepath.Join(baseDir, "manga")
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -288,5 +290,14 @@ func writeDetailFile(baseDir string, d mfire.MangaDetail) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, d.Slug+".json"), data, 0644)
+	p := filepath.Join(dir, d.Slug+".json")
+	tmp := p + ".tmp"
+	if err := os.WriteFile(tmp, data, 0644); err != nil {
+		return fmt.Errorf("write temp: %w", err)
+	}
+	if err := os.Rename(tmp, p); err != nil {
+		os.Remove(tmp)
+		return fmt.Errorf("rename: %w", err)
+	}
+	return nil
 }

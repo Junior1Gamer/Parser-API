@@ -368,8 +368,9 @@ func (w *DirectDetailWriter) DetailExists(slug string) bool {
 	return err == nil
 }
 
-// WriteDetail marshals the detail to indented JSON and writes it to
-// baseDir/manga/{slug}.json.
+// WriteDetail marshals the detail to indented JSON and writes it atomically
+// to baseDir/manga/{slug}.json via a temp file + rename. This prevents
+// partial/corrupt files if the process is killed mid-write.
 func (w *DirectDetailWriter) WriteDetail(detail MangaDetail) error {
 	dir := filepath.Join(w.BaseDir, "manga")
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -380,5 +381,13 @@ func (w *DirectDetailWriter) WriteDetail(detail MangaDetail) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 	p := filepath.Join(dir, detail.Slug+".json")
-	return os.WriteFile(p, data, 0644)
+	tmp := p + ".tmp"
+	if err := os.WriteFile(tmp, data, 0644); err != nil {
+		return fmt.Errorf("write temp: %w", err)
+	}
+	if err := os.Rename(tmp, p); err != nil {
+		os.Remove(tmp)
+		return fmt.Errorf("rename: %w", err)
+	}
+	return nil
 }
