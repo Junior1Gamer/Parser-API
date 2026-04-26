@@ -176,6 +176,21 @@ go run ./cmd/mfapi/ --mode chapters --slug one-piece.1 --parallel 4 --rate-per-s
 # Fetch chapter page images for ALL manga (reads manga.json internally)
 go run ./cmd/mfapi/ --mode chapters --output output --parallel 4 --rate-per-sec 3
 
+> [!NOTE]
+> **Chapter pages are not included in the automatic daily workflow.**
+> The `--mode chapters` phase is separate because fetching page URLs for every
+> chapter of every manga would require millions of API calls — far exceeding the
+> 6-hour GitHub Actions job limit even with parallel workers. Use it as a
+> **targeted manual run** for specific manga you need images for. The phase is
+> still resume-safe: if a chapters run is interrupted, re-running skips already-
+> fetched chapter files.
+> 
+> For comparison: the `detail` phase (which _is_ automated) only stores chapter
+> _metadata_ (number, title, date). Adding page URLs would balloon each manga
+> detail file from ~5 KB to potentially hundreds of KB. The split keeps the
+> automated pipeline fast while still giving consumers access to page data when
+> needed.
+
 # Or run both listing + detail in one go
 go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 ```
