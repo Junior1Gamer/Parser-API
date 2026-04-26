@@ -59,7 +59,7 @@ discovery — lightweight enough to fetch once and cache.
     "slug": "one-piece.1",
     "title": "One Piece",
     "cover": "https://s.mfcdn.nl/.../cover.jpg",
-    "url": "https://junior1gamer.github.io/MF-API/manga/one-piece.1.json"
+    "url": "https://mangafire.to/manga/one-piece.1"
   }
 ]
 ```
@@ -69,7 +69,7 @@ discovery — lightweight enough to fetch once and cache.
 | `slug` | string | Unique identifier used in detail file names |
 | `title` | string | Manga title |
 | `cover` | string (URL) | Cover image URL from MangaFire's CDN |
-| `url` | string (URL) | Convenience: direct link to the detail JSON |
+| `url` | string (URL) | Link to the manga page on MangaFire's website |
 
 **Size:** ~3–5 MB for the full listing (53K+ entries).
 
