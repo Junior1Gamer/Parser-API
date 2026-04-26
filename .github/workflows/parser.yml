@@ -1,6 +1,10 @@
 name: Scrape and deploy manga data
 
 on:
+  schedule:
+    # Run daily at 04:17 UTC — avoids peak hours and gives time to finish
+    # before the next day's listing update.
+    - cron: '17 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -59,3 +63,13 @@ jobs:
           keep_files: true
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
+
+  # Prevent GitHub from disabling this scheduled workflow after 60 days of
+  # repository inactivity.
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1

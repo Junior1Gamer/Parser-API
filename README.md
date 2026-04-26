@@ -15,17 +15,18 @@ and publishes structured JSON files as a static API via GitHub Pages.
 ## What it is
 
 MF-API is a **data pipeline** that turns a live manga catalog into queryable
-JSON files without running a server. The pipeline runs automatically every day
-via GitHub Actions, and the output is served from a static branch — zero
-infrastructure cost, zero maintenance.
+JSON files without running a server. The pipeline runs automatically once per
+day via GitHub Actions (with manual trigger available), and the output is
+served from a static branch — zero infrastructure cost, zero maintenance.
 
 ### What it produces
 
-| File | Description |
+| File / Directory | Description |
 |---|---|
 | `index.json` | Dataset metadata (timestamp, count) |
 | `manga.json` | Full listing: `[{slug, title, cover, url}]` |
 | `manga/{slug}.json` | Per-manga detail including chapters |
+| `manga/{slug}/chapters/{num}.json` | Page image URLs for a single chapter |
 
 The files are published to the [`output`](https://github.com/Junior1Gamer/MF-API/tree/output)
 branch and served at:
@@ -33,6 +34,7 @@ branch and served at:
 ```
 https://junior1gamer.github.io/MF-API/manga.json
 https://junior1gamer.github.io/MF-API/manga/{slug}.json
+https://junior1gamer.github.io/MF-API/manga/{slug}/chapters/{num}.json
 ```
 
 ---
@@ -58,7 +60,7 @@ sequenceDiagram
     participant MF as MangaFire
     participant BP as output Branch
 
-    GH->>P: Run manually via workflow_dispatch
+    GH->>P: Daily at 04:17 UTC (or manual trigger)
     P->>MF: Fetch /filter?page=N (all pages)
     MF-->>P: HTML listing (slug, title, cover)
     P->>P: Write manga.json
@@ -83,6 +85,8 @@ sequenceDiagram
 | **VRF token generation** | The site requires a challenge token for search. We ported the RC4 + transform algorithm from Kotatsu — no headless browser needed |
 | **No server required** | JSON files are served directly from a GitHub Pages branch. No DB, no API gateway, no running costs |
 | **GraphQL-like data model** | Consumers fetch the lightweight listing first, then only the detail files they need — keeping bandwidth low |
+| **Chapter pages via AJAX** | Page image URLs are fetched from MangaFire's JSON API endpoint, not by scraping the reader page HTML |
+| **Scrambled image awareness** | Some images have a `scrambled_offset` — the raw URL is stored with the offset so consumers can unscramble if needed |
 
 ---
 
@@ -113,6 +117,15 @@ const detail = await fetch(
 );
 const manga = await detail.json();
 showDetail(manga.title, manga.description, manga.chapters);
+
+// 4. When user opens a chapter, fetch the page images
+const chapter = await fetch(
+  `https://junior1gamer.github.io/MF-API/manga/${slug}/chapters/1.json`
+);
+chapter.pages.forEach(p => {
+  // p.url — the image URL
+  // p.scrambled_offset — >0 means the image is puzzle-scrambled
+});
 ```
 
 ---
@@ -123,12 +136,13 @@ showDetail(manga.title, manga.description, manga.chapters);
 MF-API/
 ├── .github/
 │   └── workflows/
-│       └── parser.yml              # Manual-trigger pipeline
+│       └── parser.yml              # Daily schedule + manual trigger
 ├── cmd/
 │   └── mfapi/
 │       └── main.go                 # CLI entry point
 ├── pkg/
 │   ├── mfire/
+│   │   ├── chapters.go            # AJAX chapter list & page image fetcher
 │   │   ├── client.go              # HTTP client with retry & rate limiting
 │   │   ├── detail.go              # Manga detail scraper + parallel worker pool
 │   │   ├── list.go                # All-manga listing via pagination
@@ -156,7 +170,13 @@ go run ./cmd/mfapi/ --mode list --output output
 # Fetch metadata for every manga (resume-safe, parallel)
 go run ./cmd/mfapi/ --mode detail --output output --parallel 4 --rate-per-sec 3
 
-# Or run both phases in one go
+# Fetch chapter page images for a single manga
+go run ./cmd/mfapi/ --mode chapters --slug one-piece.1 --parallel 4 --rate-per-sec 3
+
+# Fetch chapter page images for ALL manga (reads manga.json internally)
+go run ./cmd/mfapi/ --mode chapters --output output --parallel 4 --rate-per-sec 3
+
+# Or run both listing + detail in one go
 go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 ```
 
@@ -164,13 +184,17 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 
 | Flag | Default | Description |
 |---|---|---|
-| `--mode` | `full` | `list`, `detail`, `full`, `search` |
+| `--mode` | `full` | `list`, `detail`, `full`, `search`, `chapters` |
 | `--output` | `output` | Output directory |
 | `--query` | — | Search keyword (`--mode=search`) |
+| `--slug` | — | Single manga slug (`--mode=chapters`) |
+| `--limit` | `0` | Max results (0 = all) |
 | `--rate` | `500ms` | Min delay between serial requests |
 | `--retries` | `3` | Max retries on failure |
-| `--parallel` | `4` | Detail workers (0 = serial) |
+| `--parallel` | `4` | Detail/chapter workers (0 = serial) |
 | `--rate-per-sec` | `3` | Global req/s for parallel workers |
+| `--chapter-type` | `chapter` | Branch type: `chapter` or `volume` |
+| `--chapter-lang` | `en` | Chapter language code |
 
 ---
 
@@ -180,11 +204,23 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
   3 req/s across all workers — well below typical bot-detection thresholds.
 - **403 handling**: Cloudflare challenges trigger a 15–30 s backoff before
   retry (up to 3 times), then the slug is skipped.
-- **Timeout resilience**: The detail phase writes files incrementally. A
-  partial run deploys whatever was fetched. The next run's resume logic picks
-  up where it left off.
+- **Timeout resilience**: Both detail and chapter phases write files
+  incrementally. A partial run deploys whatever was fetched. The next run's
+  resume logic picks up where it left off.
 - **VRF caching**: VRF tokens are LRU-cached (1024 entries) so repeated
   search queries don't recompute the expensive token generation.
+- **Scrambled images**: Some chapter page images returned by MangaFire's API
+  include a scrambling offset (`scrambled_offset > 0`). The image pixels are
+  rearranged in a 200×200 px grid pattern. Consumers can reverse the
+  transform using the Kotatsu reference algorithm:
+
+  ```
+  xSrc = (xMax - x + offset) % xMax
+  ySrc = (yMax - y + offset) % yMax
+  ```
+
+  where `x, y` is the destination piece position and `xMax, yMax` are the
+  number of pieces along each axis.
 
 ---
 
