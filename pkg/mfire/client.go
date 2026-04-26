@@ -56,7 +56,6 @@ func NewClient() *Client {
 			Timeout:   DefaultTimeout,
 			Jar:       jar,
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				// Allow up to 5 redirects
 				if len(via) >= 5 {
 					return fmt.Errorf("too many redirects")
 				}
@@ -69,14 +68,10 @@ func NewClient() *Client {
 }
 
 // SetRateLimit adjusts the delay between requests.
-func (c *Client) SetRateLimit(d time.Duration) {
-	c.rateLimit = d
-}
+func (c *Client) SetRateLimit(d time.Duration) { c.rateLimit = d }
 
 // SetMaxRetries adjusts the number of retry attempts on failure.
-func (c *Client) SetMaxRetries(n int) {
-	c.maxRetries = n
-}
+func (c *Client) SetMaxRetries(n int) { c.maxRetries = n }
 
 // throttle ensures we don't exceed the rate limit.
 func (c *Client) throttle() {
@@ -103,9 +98,12 @@ func (c *Client) newRequest(rawURL string) (*http.Request, error) {
 	return req, nil
 }
 
+// ---------------------------------------------------------------------------
+// public fetch methods
+// ---------------------------------------------------------------------------
+
 // FetchDocument fetches a URL and returns a goquery document, with retry and
-// 403 backoff. Each attempt has a context deadline of 45 seconds as a safety
-// net against unresponsive servers (tarpit / connection hang).
+// 403 backoff.
 func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 	var lastErr error
 	for attempt := 0; attempt < c.maxRetries; attempt++ {
@@ -116,41 +114,37 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 			return nil, fmt.Errorf("create request: %w", err)
 		}
 
-		// Per-request context deadline prevents indefinite hangs.
-		// 60 seconds covers Cloudflare challenge warm-up plus slow pages.
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		req = req.WithContext(ctx)
 		resp, err := c.http.Do(req)
-		cancel()
+
 		if err != nil {
+			cancel()
 			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
 			c.backoff(attempt)
 			continue
 		}
 
-		body, err := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		if err != nil {
-			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, err)
+		cancel() // cancel AFTER body read — cancelling earlier invalidates the stream
+		if readErr != nil {
+			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, readErr)
 			c.backoff(attempt)
 			continue
 		}
 
-		if resp.StatusCode == 429 || resp.StatusCode == 503 {
-			lastErr = fmt.Errorf("rate limited (attempt %d): %s", attempt+1, resp.Status)
+		switch {
+		case resp.StatusCode == 429 || resp.StatusCode == 503:
+			lastErr = fmt.Errorf("attempt %d: rate limited (%s)", attempt+1, resp.Status)
 			c.backoff(attempt)
 			continue
-		}
-
-		if resp.StatusCode == 403 {
-			// Cloudflare challenge. Back off longer.
-			lastErr = fmt.Errorf("cloudflare 403 (attempt %d)", attempt+1)
-			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second) // 20-40 s
+		case resp.StatusCode == 403:
+			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
+			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
 			continue
-		}
-
-		if resp.StatusCode >= 400 {
-			return nil, fmt.Errorf("bad status: %s (body: %s)", resp.Status, truncate(string(body), 200))
+		case resp.StatusCode >= 400:
+			return nil, fmt.Errorf("attempt %d: bad status %s: %s", attempt+1, resp.Status, truncate(string(body), 200))
 		}
 
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
@@ -162,10 +156,10 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
 }
 
-// FetchJSON fetches a URL and returns the raw response body. It supports
-// retry, rate limiting, and 403 backoff — identical to FetchDocument but
-// returns bytes instead of a goquery document.
+// FetchJSON fetches a URL and returns the raw response body with JSON headers.
 func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
+	// We need different request headers for JSON. Reuse the retry loop but
+	// use a wrapper that rebuilds the request with JSON headers.
 	var lastErr error
 	for attempt := 0; attempt < c.maxRetries; attempt++ {
 		c.throttle()
@@ -178,37 +172,35 @@ func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
 		req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
 		req = req.WithContext(ctx)
+
 		resp, err := c.http.Do(req)
-		cancel()
 		if err != nil {
 			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
 			c.backoff(attempt)
 			continue
 		}
 
-		body, err := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		if err != nil {
-			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, err)
+		if readErr != nil {
+			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, readErr)
 			c.backoff(attempt)
 			continue
 		}
 
-		if resp.StatusCode == 429 || resp.StatusCode == 503 {
-			lastErr = fmt.Errorf("rate limited (attempt %d): %s", attempt+1, resp.Status)
+		switch {
+		case resp.StatusCode == 429 || resp.StatusCode == 503:
+			lastErr = fmt.Errorf("attempt %d: rate limited (%s)", attempt+1, resp.Status)
 			c.backoff(attempt)
 			continue
-		}
-
-		if resp.StatusCode == 403 {
-			lastErr = fmt.Errorf("cloudflare 403 (attempt %d)", attempt+1)
-			time.Sleep(time.Duration(15+rand.Intn(16)) * time.Second)
+		case resp.StatusCode == 403:
+			lastErr = fmt.Errorf("attempt %d: cloudflare 403", attempt+1)
+			time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
 			continue
-		}
-
-		if resp.StatusCode >= 400 {
-			return nil, fmt.Errorf("bad status: %s (body: %s)", resp.Status, truncate(string(body), 200))
+		case resp.StatusCode >= 400:
+			return nil, fmt.Errorf("attempt %d: bad status %s: %s", attempt+1, resp.Status, truncate(string(body), 200))
 		}
 
 		return body, nil
@@ -224,7 +216,6 @@ func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.D
 		return nil, fmt.Errorf("generate vrf: %w", err)
 	}
 
-	// Append vrf parameter
 	sep := "?"
 	if strings.Contains(rawURL, "?") {
 		sep = "&"
@@ -235,8 +226,7 @@ func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.D
 }
 
 // backoff sleeps with exponential backoff + jitter. The first wait is ~2 s,
-// second is ~4 s, third is ~8 s. A small initial delay helps the site
-// recover from transient blocks.
+// second is ~4 s. The third attempt has no backoff since it's the last.
 func (c *Client) backoff(attempt int) {
 	if attempt >= c.maxRetries-1 {
 		return
