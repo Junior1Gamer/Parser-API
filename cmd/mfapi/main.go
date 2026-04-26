@@ -112,10 +112,21 @@ func runDetail(client *mfire.Client, outputDir string, parallel, ratePerSec int,
 	}
 
 	if parallel > 0 {
+		fetchIdx, idxErr := mfire.LoadFetchIndex(mfire.IndexPath(outputDir))
+		if idxErr != nil {
+			log.Printf("Warning: could not load fetch index: %v; will create new one", idxErr)
+			fetchIdx = &mfire.FetchIndex{Entries: make(map[string]mfire.FetchIndexEntry)}
+		}
+		log.Printf("Fetch index loaded: %d entries tracked", len(fetchIdx.Entries))
+
 		detailWriter := mfire.NewDirectDetailWriter(outputDir)
-		fetched, err := client.FetchAllMangaDetailsParallel(slugs, parallel, ratePerSec, detailWriter, progress)
+		fetched, err := client.FetchAllMangaDetailsParallel(slugs, parallel, ratePerSec, detailWriter, fetchIdx, progress)
 		if err != nil {
 			log.Fatalf("Parallel detail fetch failed: %v", err)
+		}
+		// Save updated fetch index.
+		if saveErr := mfire.SaveFetchIndex(mfire.IndexPath(outputDir), fetchIdx); saveErr != nil {
+			log.Printf("Warning: could not save fetch index: %v", saveErr)
 		}
 		log.Printf("Fetched %d new manga details (parallel=%d, rate=%d/s)", fetched, parallel, ratePerSec)
 	} else {

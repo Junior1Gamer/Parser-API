@@ -146,6 +146,9 @@ func (c *Client) FetchMangaDetail(slug string) (*MangaDetail, error) {
 	// --- Chapters ---
 	result.Chapters = parseChapters(doc)
 
+	// --- Fetched at ---
+	result.FetchedAt = time.Now().UTC().Format(time.RFC3339)
+
 	return result, nil
 }
 
@@ -252,20 +255,27 @@ func (c *Client) FetchAllMangaDetails(slugs []string, progress chan<- string) ([
 }
 
 // ---------------------------------------------------------------------------
-// Parallel detail fetch with resume support
+// Parallel detail fetch with resume + smart refresh
 // ---------------------------------------------------------------------------
 
 // FetchAllMangaDetailsParallel fetches manga details concurrently using the
 // given number of workers. It respects a shared rate limiter, writes each
 // detail immediately via the provided writer, and skips slugs whose detail
-// file already exists (resume support).
+// file already exists AND whose fetch-index entry is still fresh.
 //
-// Returns the number of new details fetched (not including resumed skips).
+// The fetchIdx controls refresh decisions:
+//   - Slugs not in the index (new manga) are always fetched.
+//   - Slugs in the index with a stale timestamp are re-fetched.
+//   - Slugs in the index with a fresh timestamp are skipped.
+// The index is updated after every successful fetch.
+//
+// Returns the number of new details fetched (not including skips).
 func (c *Client) FetchAllMangaDetailsParallel(
 	slugs []string,
 	workers int,
 	ratePerSec int,
 	writer DetailWriter,
+	fetchIdx *FetchIndex,
 	progress chan<- string,
 ) (int, error) {
 
@@ -276,15 +286,31 @@ func (c *Client) FetchAllMangaDetailsParallel(
 		ratePerSec = 1
 	}
 
-	// Build work queue, skipping already-fetched slugs.
+	// Build work queue, applying resume logic:
+	// 1.  No detail file?                                            → fetch (new)
+	// 2.  File exists + no fetch-index entry for this slug?           → fetch (new, index not yet built)
+	// 3.  File exists + index entry says NeedsRefresh?                → fetch (stale)
+	// 4.  File exists + index entry says fresh?                       → skip
 	var totalSkipped int64
 	work := make(chan string, len(slugs))
 	for _, slug := range slugs {
-		if writer != nil && writer.DetailExists(slug) {
+		if writer == nil || !writer.DetailExists(slug) {
+			work <- slug // new manga — always fetch
+			continue
+		}
+		// File exists; check index.
+		entry, hasEntry := fetchIdx.Entries[slug]
+		if !hasEntry {
+			// File exists but no index entry (migration from old format).
+			// Keep existing file; treat as fresh.
 			atomic.AddInt64(&totalSkipped, 1)
 			continue
 		}
-		work <- slug
+		if entry.NeedsRefresh(time.Now()) {
+			work <- slug // stale — re-fetch
+			continue
+		}
+		atomic.AddInt64(&totalSkipped, 1) // still fresh
 	}
 	close(work)
 
@@ -330,6 +356,14 @@ func (c *Client) FetchAllMangaDetailsParallel(
 						log.Printf("Warning: write %s: %v", slug, we)
 					}
 				}
+
+				// Update fetch index.
+				totalMu.Lock()
+				fetchIdx.Entries[slug] = FetchIndexEntry{
+					FetchedAt: detail.FetchedAt,
+					Status:    detail.Status,
+				}
+				totalMu.Unlock()
 
 				n := atomic.AddInt64(&fetched, 1)
 				if progress != nil {
@@ -378,4 +412,65 @@ func (w *DirectDetailWriter) WriteDetail(detail MangaDetail) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 	return WriteFileAtomic(p, data, 0644)
+}
+
+// ---------------------------------------------------------------------------
+// FetchIndex helpers
+// ---------------------------------------------------------------------------
+
+// NeedsRefresh returns true when the entry is old enough to warrant a
+// re-fetch based on its status.
+func (e FetchIndexEntry) NeedsRefresh(now time.Time) bool {
+	if e.FetchedAt == "" {
+		return false // unknown age — treat as fresh (migration safety)
+	}
+	t, err := time.Parse(time.RFC3339, e.FetchedAt)
+	if err != nil {
+		return false
+	}
+	threshold := time.Duration(e.refreshThresholdDays()) * 24 * time.Hour
+	return now.Sub(t) > threshold
+}
+
+func (e FetchIndexEntry) refreshThresholdDays() int {
+	switch e.Status {
+	case "Completed", "Discontinued", "Cancelled":
+		return 90
+	default:
+		return 7
+	}
+}
+
+// LoadFetchIndex reads the fetch-index file from disk.  If the file does
+// not exist (first run) it returns an empty index without error.
+func LoadFetchIndex(path string) (*FetchIndex, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return &FetchIndex{Entries: make(map[string]FetchIndexEntry)}, nil
+		}
+		return nil, fmt.Errorf("read fetch index: %w", err)
+	}
+	var fi FetchIndex
+	if err := json.Unmarshal(data, &fi); err != nil {
+		return nil, fmt.Errorf("parse fetch index: %w", err)
+	}
+	if fi.Entries == nil {
+		fi.Entries = make(map[string]FetchIndexEntry)
+	}
+	return &fi, nil
+}
+
+// SaveFetchIndex writes the fetch index to disk atomically.
+func SaveFetchIndex(path string, fi *FetchIndex) error {
+	data, err := json.MarshalIndent(fi, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal fetch index: %w", err)
+	}
+	return WriteFileAtomic(path, data, 0644)
+}
+
+// IndexPath returns the expected path for the fetch index file under baseDir.
+func IndexPath(baseDir string) string {
+	return filepath.Join(baseDir, "fetch_index.json")
 }

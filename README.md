@@ -27,6 +27,7 @@ served from a static branch — zero infrastructure cost, zero maintenance.
 | `manga.json` | Full listing: `[{slug, title, cover, url}]` |
 | `manga/{slug}.json` | Per-manga detail including chapters |
 | `manga/{slug}/chapters/{num}.json` | Page image URLs for a single chapter |
+| `fetch_index.json` | Internal: per-manga fetch timestamps for smart refresh |
 
 The files are published to the [`output`](https://github.com/Junior1Gamer/MF-API/tree/output)
 branch and served at:
@@ -82,6 +83,7 @@ sequenceDiagram
 |---|---|
 | **Parallel detail fetch** | 4 concurrent workers at 3 req/s — fits under rate limits while keeping a full scrape (~53K manga) within the 6 h GitHub Actions timeout |
 | **Resume support** | Each detail file is written independently. If a run times out, the next run skips already-fetched slugs |
+| **Smart refresh** | A `fetch_index.json` tracks `fetched_at` + `status` per manga. Completed manga are refreshed every 90 days; ongoing every 7 days. This avoids re-fetching the entire catalog on every run |
 | **VRF token generation** | The site requires a challenge token for search. We ported the RC4 + transform algorithm from Kotatsu — no headless browser needed |
 | **No server required** | JSON files are served directly from a GitHub Pages branch. No DB, no API gateway, no running costs |
 | **GraphQL-like data model** | Consumers fetch the lightweight listing first, then only the detail files they need — keeping bandwidth low |
@@ -222,6 +224,11 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 - **Timeout resilience**: Both detail and chapter phases write files
   incrementally. A partial run deploys whatever was fetched. The next run's
   resume logic picks up where it left off.
+- **Smart refresh**: A `fetch_index.json` file tracks when each manga was
+  last fetched and its status. Completed/discontinued manga are refreshed
+  every 90 days; ongoing/releasing manga every 7 days. The detail phase
+  only re-fetches slugs that are due for a refresh, keeping the daily
+  pipeline efficient.
 - **VRF caching**: VRF tokens are LRU-cached (1024 entries) so repeated
   search queries don't recompute the expensive token generation.
 - **Scrambled images**: Some chapter page images returned by MangaFire's API

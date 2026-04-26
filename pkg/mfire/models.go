@@ -25,6 +25,7 @@ type MangaDetail struct {
 	AltTitles   []string  `json:"alt_titles,omitempty"`
 	Chapters    []Chapter `json:"chapters,omitempty"`
 	UpdatedAt   string    `json:"updated_at,omitempty"`
+	FetchedAt   string    `json:"fetched_at,omitempty"` // when we last fetched this detail
 }
 
 // Chapter represents a single chapter of a manga.
@@ -77,6 +78,19 @@ type chapterPagesResponse struct {
 	Result struct {
 		Images [][]interface{} `json:"images"` // each entry: [url, preview_url, offset]
 	} `json:"result"`
+}
+
+// FetchIndexEntry tracks when a manga was last fetched and its status.
+type FetchIndexEntry struct {
+	FetchedAt string `json:"fetched_at"`
+	Status    string `json:"status,omitempty"`
+}
+
+// FetchIndex is a lightweight per-manga fetch tracker stored on the output
+// branch as fetch_index.json.  It allows the refresh logic to decide which
+// slugs need re-fetching without reading every detail JSON file.
+type FetchIndex struct {
+	Entries map[string]FetchIndexEntry `json:"entries"`
 }
 
 // extractMangaID gets the trailing numeric ID from a slug like "one-piece.1".
