@@ -148,6 +148,57 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
 }
 
+// FetchJSON fetches a URL and returns the raw response body. It supports
+// retry, rate limiting, and 403 backoff — identical to FetchDocument but
+// returns bytes instead of a goquery document.
+func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
+	var lastErr error
+	for attempt := 0; attempt < c.maxRetries; attempt++ {
+		c.throttle()
+
+		req, err := c.newRequest(rawURL)
+		if err != nil {
+			return nil, fmt.Errorf("create request: %w", err)
+		}
+		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
+		req.Header.Set("X-Requested-With", "XMLHttpRequest")
+
+		resp, err := c.http.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("http do (attempt %d): %w", attempt+1, err)
+			c.backoff(attempt)
+			continue
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			lastErr = fmt.Errorf("read body (attempt %d): %w", attempt+1, err)
+			c.backoff(attempt)
+			continue
+		}
+
+		if resp.StatusCode == 429 || resp.StatusCode == 503 {
+			lastErr = fmt.Errorf("rate limited (attempt %d): %s", attempt+1, resp.Status)
+			c.backoff(attempt)
+			continue
+		}
+
+		if resp.StatusCode == 403 {
+			lastErr = fmt.Errorf("cloudflare 403 (attempt %d)", attempt+1)
+			time.Sleep(time.Duration(15+rand.Intn(16)) * time.Second)
+			continue
+		}
+
+		if resp.StatusCode >= 400 {
+			return nil, fmt.Errorf("bad status: %s (body: %s)", resp.Status, truncate(string(body), 200))
+		}
+
+		return body, nil
+	}
+	return nil, fmt.Errorf("all %d attempts failed: %w", c.maxRetries, lastErr)
+}
+
 // FetchDocumentWithVRF fetches a URL that requires a VRF token. It appends
 // the vrf parameter using the provided keyword.
 func (c *Client) FetchDocumentWithVRF(rawURL string, keyword string) (*goquery.Document, error) {

@@ -14,20 +14,23 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "full", "Operation mode: list, detail, full, search")
+	mode := flag.String("mode", "full", "Operation mode: list, detail, full, search, chapters")
 	searchQuery := flag.String("query", "", "Search keyword (use with --mode=search)")
 	limit := flag.Int("limit", 0, "Max results (0 = all)")
 	outputDir := flag.String("output", "output", "Output directory for JSON files")
 	rateLimit := flag.Duration("rate", mfire.DefaultRateLimit, "Minimum delay between requests (serial only)")
 	maxRetries := flag.Int("retries", mfire.DefaultMaxRetries, "Max retry attempts on failure")
-	parallel := flag.Int("parallel", 4, "Number of concurrent detail workers (0 = serial)")
+	parallel := flag.Int("parallel", 4, "Number of concurrent detail/chapter workers (0 = serial)")
 	ratePerSec := flag.Int("rate-per-sec", 3, "Global rate limit in req/s (used with --parallel)")
+	mangaSlug := flag.String("slug", "", "Single manga slug (use with --mode=chapters)")
+	chapterType := flag.String("chapter-type", "chapter", "Branch type: chapter or volume")
+	chapterLang := flag.String("chapter-lang", "en", "Chapter language code")
 	flag.Parse()
 
 	switch *mode {
-	case "list", "detail", "full", "search":
+	case "list", "detail", "full", "search", "chapters":
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown mode: %q. Valid: list, detail, full, search\n", *mode)
+		fmt.Fprintf(os.Stderr, "Unknown mode: %q. Valid: list, detail, full, search, chapters\n", *mode)
 		os.Exit(1)
 	}
 	if *mode == "search" && *searchQuery == "" {
@@ -62,6 +65,8 @@ func main() {
 		runDetail(client, *parallel, *ratePerSec, progress)
 	case "search":
 		runSearch(client, writer, *searchQuery, *limit, progress)
+	case "chapters":
+		runChapters(client, *outputDir, *mangaSlug, *chapterType, *chapterLang, *parallel, *ratePerSec, *limit, progress)
 	case "full":
 		runFull(client, writer, *limit, *parallel, *ratePerSec, progress)
 	}
@@ -136,6 +141,103 @@ func runSearch(client *mfire.Client, w *output.Writer, query string, limit int, 
 	if err := w.WriteMangaList(items); err != nil {
 		log.Fatalf("Write search results: %v", err)
 	}
+}
+
+// runChapters fetches page image URLs for one or all manga's chapters.
+// If --slug is set, only that manga is processed; otherwise all manga from
+// the manga.json listing are iterated.
+func runChapters(client *mfire.Client, outputDir, slug, chapType, chapLang string, parallel, ratePerSec, limit int, progress chan<- string) {
+	if slug != "" {
+		runChapterForSlug(client, slug, chapType, chapLang, parallel, ratePerSec, progress)
+		return
+	}
+
+	items, err := readMangaList(filepath.Join(outputDir, "manga.json"))
+	if err != nil {
+		log.Fatalf("Read manga list: %v", err)
+	}
+
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
+	}
+
+	log.Printf("Fetching chapter pages for %d manga...", len(items))
+
+	start := time.Now()
+	var totalManga, totalChapters, totalSkipped int
+
+	for i, item := range items {
+		mangaStart := time.Now()
+		skipped := writeChapterPagesForSlug(client, outputDir, item.Slug, chapType, chapLang, parallel, ratePerSec, progress)
+		elapsed := time.Since(mangaStart).Round(time.Second)
+
+		totalManga++
+		totalChapters += skipped.total
+		totalSkipped += skipped.skipped
+
+		log.Printf("[%d/%d] %s: %d chapter files (%d skipped, took %s)",
+			i+1, len(items), item.Slug, skipped.total, skipped.skipped, elapsed)
+
+		if progress != nil {
+			progress <- fmt.Sprintf("manga %d/%d: %s", i+1, len(items), item.Slug)
+		}
+	}
+
+	log.Printf("=== Chapter pages complete: %d manga, %d total chapter files, %d skipped, took %s ===",
+		totalManga, totalChapters, totalSkipped, time.Since(start).Round(time.Second))
+}
+
+// runChapterForSlug processes a single manga slug.
+func runChapterForSlug(client *mfire.Client, slug, chapType, chapLang string, parallel, ratePerSec int, progress chan<- string) {
+	log.Printf("Fetching chapter pages for %s...", slug)
+	start := time.Now()
+	skipped := writeChapterPagesForSlug(client, "output", slug, chapType, chapLang, parallel, ratePerSec, progress)
+	log.Printf("%s: %d chapter files (%d skipped, took %s)",
+		slug, skipped.total, skipped.skipped, time.Since(start).Round(time.Second))
+}
+
+// chapterStats tracks counts from a chapter pages run.
+type chapterStats struct {
+	total   int
+	skipped int
+}
+
+// writeChapterPagesForSlug fetches chapter pages and writes them.
+func writeChapterPagesForSlug(client *mfire.Client, outputDir, slug, chapType, chapLang string, parallel, ratePerSec int, progress chan<- string) chapterStats {
+	skipCheck := func(chapterNum string) bool {
+		p := filepath.Join(outputDir, "manga", slug, "chapters", chapterNum+".json")
+		_, err := os.Stat(p)
+		return err == nil
+	}
+
+	results, err := client.FetchChapterListAndPages(slug, chapType, chapLang, parallel, ratePerSec, skipCheck)
+	if err != nil {
+		log.Printf("Warning: %s chapter pages: %v", slug, err)
+	}
+	if results == nil {
+		return chapterStats{}
+	}
+
+	written := 0
+	for _, cp := range results {
+		dir := filepath.Join(outputDir, "manga", slug, "chapters")
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			log.Printf("Warning: mkdir %s: %v", dir, err)
+			continue
+		}
+		data, err := json.MarshalIndent(cp, "", "  ")
+		if err != nil {
+			log.Printf("Warning: marshal %s ch %s: %v", slug, cp.Chapter, err)
+			continue
+		}
+		if err := os.WriteFile(filepath.Join(dir, cp.Chapter+".json"), data, 0644); err != nil {
+			log.Printf("Warning: write %s ch %s: %v", slug, cp.Chapter, err)
+			continue
+		}
+		written++
+	}
+
+	return chapterStats{total: written}
 }
 
 // runFull runs list then detail.

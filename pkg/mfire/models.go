@@ -8,6 +8,12 @@ type MangaListItem struct {
 	URL   string `json:"url,omitempty"`
 }
 
+// MangaID extracts the numeric manga ID from the slug.
+// A slug like "one-piece.1" returns "1".
+func (m MangaListItem) MangaID() string {
+	return extractMangaID(m.Slug)
+}
+
 // MangaDetail is the full metadata for a single manga, including its chapters.
 type MangaDetail struct {
 	Slug        string    `json:"slug"`
@@ -29,10 +35,63 @@ type Chapter struct {
 	URL    string `json:"url,omitempty"`
 }
 
+// ChapterPages holds the page image URLs for a single chapter.
+type ChapterPages struct {
+	Slug    string   `json:"slug"`
+	Chapter string   `json:"chapter"`
+	Title   string   `json:"title,omitempty"`
+	Pages   []string `json:"pages"`
+}
+
+// ChapterPagesFile is the on-disk structure saved per chapter.
+type ChapterPagesFile struct {
+	Slug    string   `json:"slug"`
+	Chapter string   `json:"chapter"`
+	Title   string   `json:"title,omitempty"`
+	Pages   []string `json:"pages"`
+}
+
+// ChapterIndex lists all chapter page files for a manga.
+type ChapterIndex struct {
+	Slug     string   `json:"slug"`
+	Title    string   `json:"title"`
+	Chapters []string `json:"chapters"` // list of chapter numbers that have pages
+	Total    int      `json:"total"`
+}
+
 // IndexMeta is the top-level metadata for the output dataset.
 type IndexMeta struct {
-	GeneratedAt  string `json:"generated_at"`
-	TotalManga   int    `json:"total_manga"`
-	MangaFile    string `json:"manga_file"`
-	DetailPrefix string `json:"detail_prefix"`
+	GeneratedAt   string `json:"generated_at"`
+	TotalManga    int    `json:"total_manga"`
+	MangaFile     string `json:"manga_file"`
+	DetailPrefix  string `json:"detail_prefix"`
+	ChaptersDir   string `json:"chapters_dir,omitempty"`
+}
+
+// AJAX responses from mangafire.to
+
+// chapterListResponse is the JSON response from /ajax/read/{mangaId}/{type}/{langCode}
+type chapterListResponse struct {
+	Result struct {
+		HTML string `json:"html"`
+	} `json:"result"`
+}
+
+// chapterPagesResponse is the JSON response from /ajax/read/{type}/{chapterId}
+type chapterPagesResponse struct {
+	Result struct {
+		Images [][]interface{} `json:"images"` // each entry: [url, preview_url, offset]
+	} `json:"result"`
+}
+
+// extractMangaID gets the trailing numeric ID from a slug like "one-piece.1".
+func extractMangaID(slug string) string {
+	idx := len(slug) - 1
+	for idx >= 0 && slug[idx] != '.' {
+		idx--
+	}
+	if idx < 0 {
+		return slug
+	}
+	return slug[idx+1:]
 }
