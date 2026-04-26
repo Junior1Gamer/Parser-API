@@ -54,14 +54,6 @@ type ChapterPagesFile struct {
 	Pages   []PageImage `json:"pages"`
 }
 
-// ChapterIndex lists all chapter page files for a manga.
-type ChapterIndex struct {
-	Slug     string   `json:"slug"`
-	Title    string   `json:"title"`
-	Chapters []string `json:"chapters"` // list of chapter numbers that have pages
-	Total    int      `json:"total"`
-}
-
 // IndexMeta is the top-level metadata for the output dataset.
 type IndexMeta struct {
 	GeneratedAt   string `json:"generated_at"`

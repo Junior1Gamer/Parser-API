@@ -37,7 +37,7 @@ func (c *Client) FetchAllManga(progress chan<- string) ([]MangaListItem, int, er
 	log.Printf("Found %d pages of manga listings", totalPages)
 
 	// Parse page 1.
-	p1Items := parseMangaCards(doc, 1)
+	p1Items := parseMangaCards(doc)
 	all = append(all, p1Items...)
 
 	// Scrape remaining pages.
@@ -48,7 +48,7 @@ func (c *Client) FetchAllManga(progress chan<- string) ([]MangaListItem, int, er
 			log.Printf("Warning: page %d failed: %v; skipping", page, pErr)
 			continue
 		}
-		items := parseMangaCards(pDoc, page)
+		items := parseMangaCards(pDoc)
 		all = append(all, items...)
 
 		if progress != nil {
@@ -126,7 +126,7 @@ func extractTotalPages(doc *goquery.Document) int {
 // parseMangaCards extracts MangaListItems from a filter (or similar listing)
 // page. Duplicates (same slug from multiple matching elements per card) are
 // silently discarded.
-func parseMangaCards(doc *goquery.Document, page int) []MangaListItem {
+func parseMangaCards(doc *goquery.Document) []MangaListItem {
 	var items []MangaListItem
 	seen := make(map[string]bool)
 
@@ -207,7 +207,7 @@ func (c *Client) SearchManga(keyword string, limit int) ([]MangaListItem, error)
 		return nil, fmt.Errorf("search request: %w", err)
 	}
 
-	items := parseMangaCards(doc, 0)
+	items := parseMangaCards(doc)
 	if limit > 0 && len(items) > limit {
 		items = items[:limit]
 	}

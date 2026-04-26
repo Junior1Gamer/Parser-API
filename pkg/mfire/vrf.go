@@ -8,16 +8,6 @@ import (
 	"sync"
 )
 
-// ---------------------------------------------------------------------------
-// VRF token generator
-// Ported from Kotatsu's algorithm. Reproduces the RC4 + transform chain that
-// mangafire.to expects for search / filter endpoints.
-// ---------------------------------------------------------------------------
-
-func b64decode(s string) ([]byte, error) {
-	return base64.StdEncoding.DecodeString(s)
-}
-
 // mustB64 decodes a base64 string; panics if invalid. Used only for
 // hardcoded compile-time constants — a panic here means a developer typo.
 func mustB64(s string) []byte {
