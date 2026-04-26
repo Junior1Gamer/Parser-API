@@ -41,6 +41,8 @@ jobs:
             --retries 3
 
       - name: Run detail phase (fetch metadata, resume-safe)
+        continue-on-error: true
+        timeout-minutes: 300
         run: |
           ./mfapi \
             --mode detail \
