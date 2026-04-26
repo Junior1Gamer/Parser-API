@@ -24,7 +24,7 @@ headers so you can call these endpoints from any origin.
 
 ## Endpoints
 
-### `GET /index.json`
+### `GET /metadata.json`
 
 Dataset metadata.
 
@@ -205,7 +205,7 @@ No preflight (`OPTIONS`) is needed for `GET` requests.
 GitHub Pages sets `Cache-Control: max-age=600` (10 minutes) by default.
 For production apps, consider:
 
-- **Short-poll `index.json`** every 10–30 minutes to detect new data
+- **Short-poll `metadata.json`** every 10–30 minutes to detect new data
 - **Cache `manga.json`** for 1 hour (it changes at most once per day)
 - **Cache `manga/{slug}.json`** indefinitely — it only updates on title
   corrections, not chapter additions (chapters are added as new files, not
@@ -227,7 +227,7 @@ GitHub Pages returns a standard `404` HTML page. This can happen when:
 - A chapter pages file hasn't been scraped yet
 - The listing is still being generated (during a workflow run)
 
-Check `index.json` first to verify the dataset is current.
+Check `metadata.json` first to verify the dataset is current.
 
 ---
 
