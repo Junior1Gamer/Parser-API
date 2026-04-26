@@ -217,7 +217,7 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 
 - **Rate limiting**: The parallel phase uses a shared token bucket limited to
   3 req/s across all workers — well below typical bot-detection thresholds.
-- **403 handling**: Cloudflare challenges trigger a 15–30 s backoff before
+- **403 handling**: Cloudflare challenges trigger a 20–40 s backoff before
   retry (up to 3 times), then the slug is skipped.
 - **Timeout resilience**: Both detail and chapter phases write files
   incrementally. A partial run deploys whatever was fetched. The next run's
