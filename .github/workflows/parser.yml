@@ -45,9 +45,15 @@ jobs:
           mkdir -p output
           if [ -d prev_output/manga ]; then
             cp -r prev_output/manga output/manga/
-            echo "Restored checkpoint: $(find output/manga -name '*.json' | wc -l) detail files"
+            echo "Restored $(find output/manga -name '*.json' | wc -l) detail files"
           else
-            echo "No checkpoint found (first run or empty output branch)"
+            echo "No manga detail checkpoint found (first run)"
+          fi
+          if [ -f prev_output/fetch_index.json ]; then
+            cp prev_output/fetch_index.json output/fetch_index.json
+            echo "Restored fetch index with $(wc -l < output/fetch_index.json) bytes"
+          else
+            echo "No fetch index checkpoint found (first run or migration needed)"
           fi
           rm -rf prev_output
 
