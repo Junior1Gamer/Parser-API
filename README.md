@@ -32,7 +32,7 @@ served from a static branch — zero infrastructure cost, zero maintenance.
 The files are published to the [`output`](https://github.com/Junior1Gamer/MF-API/tree/output)
 branch and served at:
 
-```
+```text
 https://junior1gamer.github.io/MF-API/metadata.json
 https://junior1gamer.github.io/MF-API/manga.json
 https://junior1gamer.github.io/MF-API/manga/{slug}.json
@@ -135,7 +135,7 @@ chapter.pages.forEach(p => {
 
 ## Project structure
 
-```
+```text
 MF-API/
 ├── .github/
 │   └── workflows/
@@ -191,7 +191,7 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
 > **targeted manual run** for specific manga you need images for. The phase is
 > still resume-safe: if a chapters run is interrupted, re-running skips already-
 > fetched chapter files.
-> 
+>
 > For comparison: the `detail` phase (which _is_ automated) only stores chapter
 > _metadata_ (number, title, date). Adding page URLs would balloon each manga
 > detail file from ~5 KB to potentially hundreds of KB. The split keeps the
@@ -237,7 +237,7 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
   rearranged in a 200×200 px grid pattern. Consumers can reverse the
   transform using the Kotatsu reference algorithm:
 
-  ```
+  ```text
   xSrc = (xMax - x + offset) % xMax
   ySrc = (yMax - y + offset) % yMax
   ```

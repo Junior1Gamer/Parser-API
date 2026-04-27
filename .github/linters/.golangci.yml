@@ -1,6 +1,8 @@
 # golangci-lint configuration for MF-API.
 # This is intentionally permissive — we rely on go vet + staticcheck for
 # correctness, and keep most style decisions to gofmt / whitespace.
+version: "2"
+
 linters:
   enable:
     - gofmt       # standard formatting
