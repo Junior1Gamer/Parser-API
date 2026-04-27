@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      GO_LINTING_STRATEGY: module
 
     steps:
       - name: Checkout code
@@ -41,7 +42,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_GO: true
-          GO_LINTING_STRATEGY: module
           GOLANGCI_LINT_CONFIG_FILE: .github/linters/.golangci.yml
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
