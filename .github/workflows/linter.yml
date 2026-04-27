@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: read
   statuses: write
 
@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      GO_LINTING_STRATEGY: module
 
     steps:
       - name: Checkout code
@@ -36,17 +35,27 @@ jobs:
           go-version: 'stable'
           cache: true
 
-      - name: Lint codebase
+      # Go is linted separately because super-linter v7.4.0 does not
+      # support multi-package Go projects (pkg/mfire + cmd/mfapi).
+      # See: https://github.com/super-linter/super-linter/issues
+      - name: Run golangci-lint (Go)
+        continue-on-error: true
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: latest
+          args: --config .github/linters/.golangci.yml ./...
+
+      - name: Lint and auto-fix everything else
         uses: super-linter/super-linter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
-          VALIDATE_GO: true
-          GOLANGCI_LINT_CONFIG_FILE: .github/linters/.golangci.yml
+          VALIDATE_GO: false
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
           VALIDATE_GITHUB_ACTIONS: true
           DEFAULT_BRANCH: main
           LOG_LEVEL: WARN
+          FIX_MODE: true
           MARKDOWN_CONFIG_FILE: .markdown-lint.yml
           YAML_CONFIG_FILE: .yaml-lint.yml
