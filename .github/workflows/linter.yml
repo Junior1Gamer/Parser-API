@@ -53,6 +53,12 @@ jobs:
           # Go is handled by golangci-lint step above; exclude from super-linter
           # to avoid the multi-package typechecking issue.
           FILTER_REGEX_EXCLUDE: \.go$
+          # JSCPD copy-paste detection — 15 % threshold avoids flagging
+          # legitimate structural similarities (e.g. scraper patterns).
+          JSCPD_THRESHOLD: 15
+          # Natural language linting is too noisy for READMEs with code
+          # blocks, URLs, and technical terminology. Disabled.
+          VALIDATE_NATURAL_LANGUAGE: false
           DEFAULT_BRANCH: main
           LOG_LEVEL: WARN
           FIX_MODE: true
