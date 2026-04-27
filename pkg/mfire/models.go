@@ -57,11 +57,11 @@ type ChapterPagesFile struct {
 
 // Metadata is the top-level metadata for the output dataset.
 type Metadata struct {
-	GeneratedAt   string `json:"generated_at"`
-	TotalManga    int    `json:"total_manga"`
-	MangaFile     string `json:"manga_file"`
-	DetailPrefix  string `json:"detail_prefix"`
-	ChaptersDir   string `json:"chapters_dir,omitempty"`
+	GeneratedAt  string `json:"generated_at"`
+	TotalManga   int    `json:"total_manga"`
+	MangaFile    string `json:"manga_file"`
+	DetailPrefix string `json:"detail_prefix"`
+	ChaptersDir  string `json:"chapters_dir,omitempty"`
 }
 
 // AJAX responses from mangafire.to

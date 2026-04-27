@@ -56,7 +56,7 @@ func transform(input, initSeed, prefixKey []byte, prefixLen int, schedule []func
 		if i < prefixLen {
 			out = append(out, prefixKey[i])
 		}
-		t := schedule[i%10]((int(input[i]) ^ int(initSeed[i%32])) & 0xFF) & 0xFF
+		t := schedule[i%10]((int(input[i])^int(initSeed[i%32]))&0xFF) & 0xFF
 		out = append(out, byte(t))
 	}
 	return out

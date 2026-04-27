@@ -41,9 +41,9 @@ type Client struct {
 func NewClient() *Client {
 	jar, _ := cookiejar.New(nil)
 	tr := &http.Transport{
-		MaxIdleConns:         20,
-		MaxIdleConnsPerHost:  10,
-		IdleConnTimeout:      90 * time.Second,
+		MaxIdleConns:          20,
+		MaxIdleConnsPerHost:   10,
+		IdleConnTimeout:       90 * time.Second,
 		ResponseHeaderTimeout: 30 * time.Second,
 		ExpectContinueTimeout: 10 * time.Second,
 		TLSHandshakeTimeout:   15 * time.Second,

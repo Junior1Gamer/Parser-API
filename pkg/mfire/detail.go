@@ -267,6 +267,7 @@ func (c *Client) FetchAllMangaDetails(slugs []string, progress chan<- string) ([
 //   - Slugs not in the index (new manga) are always fetched.
 //   - Slugs in the index with a stale timestamp are re-fetched.
 //   - Slugs in the index with a fresh timestamp are skipped.
+//
 // The index is updated after every successful fetch.
 //
 // Returns the number of new details fetched (not including skips).
@@ -327,10 +328,10 @@ func (c *Client) FetchAllMangaDetailsParallel(
 	defer limiter.Close()
 
 	var (
-		wg       sync.WaitGroup
-		fetched  int64
-		totalMu  sync.Mutex
-		allErrs  []error
+		wg      sync.WaitGroup
+		fetched int64
+		totalMu sync.Mutex
+		allErrs []error
 	)
 
 	for w := 0; w < workers; w++ {
@@ -434,7 +435,7 @@ func (e FetchIndexEntry) NeedsRefresh(now time.Time) bool {
 
 func (e FetchIndexEntry) refreshThresholdDays() int {
 	switch e.Status {
-	case "Completed", "Discontinued", "Cancelled":
+	case "Completed", "Discontinued", "Canceled":
 		return 90
 	default:
 		return 7
