@@ -42,3 +42,4 @@ jobs:
           LOG_LEVEL: WARN
           MARKDOWN_CONFIG_FILE: .markdown-lint.yml
           YAML_CONFIG_FILE: .yaml-lint.yml
+          GO_LINTING_STRATEGY: module
