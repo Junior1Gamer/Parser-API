@@ -138,8 +138,13 @@ chapter.pages.forEach(p => {
 ```text
 MF-API/
 ├── .github/
+│   ├── linters/
+│   │   ├── .golangci.yml           # golangci-lint config for Go
+│   │   ├── .markdown-lint.yml      # markdownlint config for READMEs
+│   │   └── .yaml-lint.yml          # yamllint config for workflows
 │   └── workflows/
-│       └── parser.yml              # Daily schedule + manual trigger
+│       ├── linter.yml              # Super-Linter (Go, Markdown, YAML, Actions)
+│       └── parser.yml              # Daily scrape + deploy pipeline
 ├── cmd/
 │   └── mfapi/
 │       └── main.go                 # CLI entry point
@@ -230,6 +235,10 @@ go run ./cmd/mfapi/ --mode full --output output --parallel 4 --rate-per-sec 3
   every 90 days; ongoing/releasing manga every 7 days. The detail phase
   only re-fetches slugs that are due for a refresh, keeping the daily
   pipeline efficient.
+- **Linting**: A Super-Linter workflow (`.github/workflows/linter.yml`) checks
+  Go code, Markdown, YAML, and GitHub Actions files on every push. Enabled
+  linters include `gofmt`, `govet`, `misspell`, `markdownlint`, `yamllint`,
+  and `actionlint`. Configuration files live in `.github/linters/`.
 - **VRF caching**: VRF tokens are LRU-cached (1024 entries) so repeated
   search queries don't recompute the expensive token generation.
 - **Scrambled images**: Some chapter page images returned by MangaFire's API

@@ -33,19 +33,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          cache: false
+          cache: true
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
-        with:
-          version: latest
-          args: --config .github/linters/.golangci.yml ./...
-
-      - name: Lint Markdown, YAML, and workflows
+      - name: Lint codebase
         uses: super-linter/super-linter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_GO: true
+          GO_LINTING_STRATEGY: module
+          GOLANGCI_LINT_CONFIG_FILE: .github/linters/.golangci.yml
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
           VALIDATE_GITHUB_ACTIONS: true
