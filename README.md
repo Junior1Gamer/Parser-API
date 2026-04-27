@@ -277,5 +277,5 @@ if (ch1) {
 
 ---
 
-For the full project source code, architecture, and local development
-instructions, see the [`main` branch](https://github.com/Junior1Gamer/MF-API).
+For the full project source code, architecture, local development
+instructions, and linting setup, see the [`main` branch](https://github.com/Junior1Gamer/MF-API).
