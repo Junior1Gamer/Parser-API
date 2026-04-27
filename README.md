@@ -3,6 +3,10 @@
 This branch serves as a **static API** — JSON files generated daily by the
 [MF-API](https://github.com/Junior1Gamer/MF-API) scraper on the `main` branch.
 
+[![Lint](https://github.com/Junior1Gamer/MF-API/actions/workflows/linter.yml/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/linter.yml)
+[![pages-build-deployment](https://github.com/Junior1Gamer/MF-API/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/pages/pages-build-deployment)
+[![Scrape and deploy manga data](https://github.com/Junior1Gamer/MF-API/actions/workflows/parser.yml/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/parser.yml)
+
 All files are served by GitHub Pages at:
 
 ```
