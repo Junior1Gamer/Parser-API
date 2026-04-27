@@ -4,9 +4,8 @@
 version: "2"
 
 linters:
+  default: none
   enable:
-    - gofmt       # standard formatting
-    - goimports   # import ordering
     - govet       # correctness (already passes CI)
     - ineffassign # detect ineffective assignments
     - bodyclose   # track HTTP response body close
@@ -19,15 +18,20 @@ linters:
     - gocyclo     # complexity checks too strict for parsing logic
     - godox       # TODO comments are intentional
     - gochecknoinits # init() is fine where appropriate
+  settings:
+    misspell:
+      locale: US
+    whitespace:
+      multi-if: true
+      multi-func: true
 
-linters-settings:
-  goimports:
-    local-prefixes: github.com/Junior1Gamer/MF-API
-  misspell:
-    locale: US
-  whitespace:
-    multi-if: true
-    multi-func: true
+formatters:
+  enable:
+    - gofmt       # standard formatting
+    - goimports   # import ordering
+  settings:
+    goimports:
+      local-prefixes: github.com/Junior1Gamer/MF-API
 
 issues:
   max-issues-per-linter: 0
