@@ -1,0 +1,22 @@
+# markdownlint configuration for MF-API READMEs.
+# README files contain wide tables, code blocks, and long URLs —
+# many standard rules don't apply.
+
+# Line length — README content includes long table rows and URLs
+MD013: false
+
+# First line in file should be a top-level heading (H1)
+# Our READMEs start with the heading, but HTML comment lines before it
+# are also flagged. Relaxed for flexibility.
+MD041: false
+
+# Multiple top-level headings in the same document
+# Our READMEs have multiple H1-level sections for structure.
+MD025: false
+
+# Trailing punctuation in headings — not our style
+MD026: false
+
+# Ordered list item prefix — we use all-1 style which is fine
+MD029:
+  style: one_or_ordered

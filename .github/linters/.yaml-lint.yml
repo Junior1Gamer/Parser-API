@@ -1,0 +1,18 @@
+# yamllint configuration for MF-API workflow files.
+extends: default
+
+rules:
+  # Document start (---) — not needed for GitHub Actions YAML
+  document-start: disable
+
+  # Line length — workflow YAML often has long command lines and URLs
+  line-length: disable
+
+  # Comments indentation — we sometimes have inline comments
+  comments-indentation: disable
+
+  # Truthy values — GitHub Actions uses on/true/false as strings
+  truthy: disable
+
+  # Trailing spaces — relaxed for flexibility
+  trailing-spaces: disable

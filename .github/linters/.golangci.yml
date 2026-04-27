@@ -1,0 +1,33 @@
+# golangci-lint configuration for MF-API.
+# This is intentionally permissive — we rely on go vet + staticcheck for
+# correctness, and keep most style decisions to gofmt / whitespace.
+linters:
+  enable:
+    - gofmt       # standard formatting
+    - goimports   # import ordering
+    - govet       # correctness (already passes CI)
+    - ineffassign # detect ineffective assignments
+    - bodyclose   # track HTTP response body close
+    - misspell    # catch common misspellings
+    - whitespace  # trailing whitespace
+    - unused      # detect dead code
+  disable:
+    - errcheck    # too noisy for this codebase
+    - funlen      # lets us keep long scraping functions readable
+    - gocyclo     # complexity checks too strict for parsing logic
+    - godox       # TODO comments are intentional
+    - gochecknoinits # init() is fine where appropriate
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/Junior1Gamer/MF-API
+  misspell:
+    locale: US
+  whitespace:
+    multi-if: true
+    multi-func: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-use-default: false
