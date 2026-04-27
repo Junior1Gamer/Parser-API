@@ -187,7 +187,7 @@ func (c *Client) FetchDocument(rawURL string) (*goquery.Document, error) {
 
 // FetchJSON fetches a URL and returns the raw response body. Unlike
 // FetchDocument it sends AJAX headers. Because colly's built-in
-// OnResponse does not let us customise request headers per-collector
+// OnResponse does not let us customize request headers per-collector
 // easily, we use the backing httpClient directly.
 func (c *Client) FetchJSON(rawURL string) ([]byte, error) {
 	var lastErr error
