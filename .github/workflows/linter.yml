@@ -46,8 +46,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
-          VALIDATE_GO: false
-          VALIDATE_GO_MOD: true
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
           VALIDATE_GITHUB_ACTIONS: true
