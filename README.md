@@ -3,6 +3,10 @@
 A Go scraper that extracts manga metadata from [MangaFire](https://mangafire.to)
 and publishes structured JSON files as a static API via GitHub Pages.
 
+[![Lint](https://github.com/Junior1Gamer/MF-API/actions/workflows/linter.yml/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/linter.yml)
+[![pages-build-deployment](https://github.com/Junior1Gamer/MF-API/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/pages/pages-build-deployment)
+[![Scrape and deploy manga data](https://github.com/Junior1Gamer/MF-API/actions/workflows/parser.yml/badge.svg)](https://github.com/Junior1Gamer/MF-API/actions/workflows/parser.yml)
+
 > [!IMPORTANT]
 > **Educational purpose only** — this project is provided under the MIT license.
 > It is not intended to help circumvent paywalls, license restrictions, or
