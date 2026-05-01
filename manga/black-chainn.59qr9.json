@@ -1,8 +1,8 @@
 {
   "slug": "black-chainn.59qr9",
   "title": "Black Chain",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Black Chain manga, read all chapters here, the latest chapter 83 is available. Read Black Chain raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Black Chain manga, read all chapters here, the latest chapter 84 is available. Read Black Chain raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -50,6 +50,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "84",
+      "title": "Chap 84",
+      "url": "https://mangafire.to/read/black-chainn.59qr9/en/chapter-84"
+    },
     {
       "number": "83",
       "title": "Chap 83",
@@ -371,6 +376,11 @@
       "url": "https://mangafire.to/read/black-chainn.59qr9/en/chapter-21"
     },
     {
+      "number": "20.1",
+      "title": "Chap 20.1",
+      "url": "https://mangafire.to/read/black-chainn.59qr9/en/chapter-20.1"
+    },
+    {
       "number": "20",
       "title": "Chap 20",
       "url": "https://mangafire.to/read/black-chainn.59qr9/en/chapter-20"
@@ -486,5 +496,5 @@
       "url": "https://mangafire.to/read/black-chainn.59qr9/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:48:53Z"
+  "fetched_at": "2026-05-01T07:03:31Z"
 }

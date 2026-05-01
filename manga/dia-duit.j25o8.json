@@ -1,8 +1,8 @@
 {
   "slug": "dia-duit.j25o8",
   "title": "Dia duit",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Dia duit manga, read all chapters here, the latest chapter 25 is available. Read Dia duit raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Dia duit manga, read all chapters here, the latest chapter 26 is available. Read Dia duit raw, multiple language. READ NOW!!",
   "status": "Completed",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "26",
+      "title": "Vol 0 -  Chap 26",
+      "url": "https://mangafire.to/read/dia-duit.j25o8/en/chapter-26"
+    },
     {
       "number": "25",
       "title": "Vol 0 -  Chap 25",
@@ -182,5 +187,5 @@
       "url": "https://mangafire.to/read/dia-duit.j25o8/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:36:59Z"
+  "fetched_at": "2026-05-01T07:04:26Z"
 }

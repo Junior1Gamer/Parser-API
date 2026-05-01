@@ -1,8 +1,8 @@
 {
   "slug": "dubeon-saneun-rankerr.021qr",
   "title": "Second Life Ranker",
-  "cover": "https://static.mfcdn.nl/8990/i/f/64/94c3196077bd55f6887ad4fff5d35bfa@100.jpg",
-  "description": "Second Life Ranker manga, read all chapters here, the latest chapter 220 is available. Read Second Life Ranker raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/e163/i/f/f7/f76b728f8f9851381914339a6fe0faa3@100.jpg",
+  "description": "Second Life Ranker manga, read all chapters here, the latest chapter 221 is available. Read Second Life Ranker raw, multiple language. READ NOW!!",
   "status": "On_hiatus",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Military"
   ],
   "chapters": [
+    {
+      "number": "221",
+      "title": "Chap 221",
+      "url": "https://mangafire.to/read/dubeon-saneun-rankerr.021qr/en/chapter-221"
+    },
     {
       "number": "220",
       "title": "Chap 220",
@@ -1219,5 +1224,5 @@
       "url": "https://mangafire.to/read/dubeon-saneun-rankerr.021qr/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:34:50Z"
+  "fetched_at": "2026-05-01T07:03:54Z"
 }

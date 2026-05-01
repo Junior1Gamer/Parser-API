@@ -1,8 +1,8 @@
 {
   "slug": "wind-swordd.3rn66",
   "title": "Wind Sword",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Wind Sword manga, read all chapters here, the latest chapter 147 is available. Read Wind Sword raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Wind Sword manga, read all chapters here, the latest chapter 150 is available. Read Wind Sword raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,21 @@
     "Adventure"
   ],
   "chapters": [
+    {
+      "number": "150",
+      "title": "Chap 150",
+      "url": "https://mangafire.to/read/wind-swordd.3rn66/en/chapter-150"
+    },
+    {
+      "number": "149",
+      "title": "Chap 149",
+      "url": "https://mangafire.to/read/wind-swordd.3rn66/en/chapter-149"
+    },
+    {
+      "number": "148",
+      "title": "Chap 148",
+      "url": "https://mangafire.to/read/wind-swordd.3rn66/en/chapter-148"
+    },
     {
       "number": "147",
       "title": "Chap 147",
@@ -797,5 +812,5 @@
       "url": "https://mangafire.to/read/wind-swordd.3rn66/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:41:20Z"
+  "fetched_at": "2026-05-01T07:04:52Z"
 }

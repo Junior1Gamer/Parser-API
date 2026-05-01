@@ -1,8 +1,8 @@
 {
   "slug": "heavenly-moonn.rj4nn",
   "title": "Heavenly Moon",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Heavenly Moon manga, read all chapters here, the latest chapter 259 is available. Read Heavenly Moon raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Heavenly Moon manga, read all chapters here, the latest chapter 260 is available. Read Heavenly Moon raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Martial Arts"
   ],
   "chapters": [
+    {
+      "number": "260",
+      "title": "Chap 260",
+      "url": "https://mangafire.to/read/heavenly-moonn.rj4nn/en/chapter-260"
+    },
     {
       "number": "259",
       "title": "Chap 259",
@@ -1347,5 +1352,5 @@
       "url": "https://mangafire.to/read/heavenly-moonn.rj4nn/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:40:59Z"
+  "fetched_at": "2026-05-01T07:04:45Z"
 }

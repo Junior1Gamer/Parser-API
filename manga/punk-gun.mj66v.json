@@ -1,8 +1,8 @@
 {
   "slug": "punk-gun.mj66v",
   "title": "Punk Gun",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Punk Gun manga, read all chapters here, the latest chapter 43 is available. Read Punk Gun raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Punk Gun manga, read all chapters here, the latest chapter 44 is available. Read Punk Gun raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Seinen"
   ],
   "chapters": [
+    {
+      "number": "44",
+      "title": "Chap 44",
+      "url": "https://mangafire.to/read/punk-gun.mj66v/en/chapter-44"
+    },
     {
       "number": "43",
       "title": "Chap 43",
@@ -267,5 +272,5 @@
       "url": "https://mangafire.to/read/punk-gun.mj66v/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:36:41Z"
+  "fetched_at": "2026-05-01T07:03:40Z"
 }

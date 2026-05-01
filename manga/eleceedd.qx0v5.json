@@ -1,8 +1,8 @@
 {
   "slug": "eleceedd.qx0v5",
   "title": "Eleceed",
-  "cover": "https://static.mfcdn.nl/8519/i/f/f5/f5de3a8aa53a4360358d96644d39b17c@100.jpg",
-  "description": "Eleceed manga, read all chapters here, the latest chapter 398 is available. Read Eleceed raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/75fb/i/5/5f/5f8b0691f8dfe3d5049d3d57ffa173f0@100.jpg",
+  "description": "Eleceed manga, read all chapters here, the latest chapter 399 is available. Read Eleceed raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -54,6 +54,11 @@
   ],
   "chapters": [
     {
+      "number": "399",
+      "title": "Chap 399",
+      "url": "https://mangafire.to/read/eleceedd.qx0v5/en/chapter-399"
+    },
+    {
       "number": "398",
       "title": "Chap 398",
       "url": "https://mangafire.to/read/eleceedd.qx0v5/en/chapter-398"
@@ -62,6 +67,11 @@
       "number": "397",
       "title": "Chap 397",
       "url": "https://mangafire.to/read/eleceedd.qx0v5/en/chapter-397"
+    },
+    {
+      "number": "396.5",
+      "title": "Chap 396.5",
+      "url": "https://mangafire.to/read/eleceedd.qx0v5/en/chapter-396.5"
     },
     {
       "number": "396",
@@ -2234,5 +2244,5 @@
       "url": "https://mangafire.to/read/eleceedd.qx0v5/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:43:12Z"
+  "fetched_at": "2026-05-01T07:04:37Z"
 }

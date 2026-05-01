@@ -1,8 +1,8 @@
 {
   "slug": "rankers-returnn.zl8zp",
   "title": "Ranker's Return",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Ranker's Return manga, read all chapters here, the latest chapter 240 is available. Read Ranker's Return raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Ranker's Return manga, read all chapters here, the latest chapter 241 is available. Read Ranker's Return raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Magic"
   ],
   "chapters": [
+    {
+      "number": "241",
+      "title": "Chap 241",
+      "url": "https://mangafire.to/read/rankers-returnn.zl8zp/en/chapter-241"
+    },
     {
       "number": "240",
       "title": "Chap 240",
@@ -1254,5 +1259,5 @@
       "url": "https://mangafire.to/read/rankers-returnn.zl8zp/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:41:56Z"
+  "fetched_at": "2026-05-01T07:04:50Z"
 }

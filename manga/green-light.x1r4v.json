@@ -1,8 +1,8 @@
 {
   "slug": "green-light.x1r4v",
   "title": "Green Light",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Green Light manga, read all chapters here, the latest chapter 62 is available. Read Green Light raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Green Light manga, read all chapters here, the latest chapter 63 is available. Read Green Light raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "Slice of Life"
   ],
   "chapters": [
+    {
+      "number": "63",
+      "title": "Chap 63",
+      "url": "https://mangafire.to/read/green-light.x1r4v/en/chapter-63"
+    },
     {
       "number": "62",
       "title": "Chap 62",
@@ -363,5 +368,5 @@
       "url": "https://mangafire.to/read/green-light.x1r4v/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:50:36Z"
+  "fetched_at": "2026-05-01T07:03:35Z"
 }

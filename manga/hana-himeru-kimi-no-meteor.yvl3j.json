@@ -1,7 +1,7 @@
 {
   "slug": "hana-himeru-kimi-no-meteor.yvl3j",
   "title": "Hana Himeru Kimi no Meteor",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
   "description": "Hana Himeru Kimi no Meteor manga, read all chapters here, the latest chapter 34 is available. Read Hana Himeru Kimi no Meteor raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
@@ -53,6 +53,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "31.5",
+      "title": "Vol 6 -  Chap 31.5",
+      "url": "https://mangafire.to/read/hana-himeru-kimi-no-meteor.yvl3j/en/chapter-31.5"
+    },
     {
       "number": "31",
       "title": "Vol 6 -  Chap 31",
@@ -209,5 +214,5 @@
       "url": "https://mangafire.to/read/hana-himeru-kimi-no-meteor.yvl3j/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:46:26Z"
+  "fetched_at": "2026-05-01T07:08:41Z"
 }

@@ -1,8 +1,8 @@
 {
   "slug": "youngae-top-100.j2jqy",
   "title": "The Top 100 Young Lady",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "The Top 100 Young Lady manga, read all chapters here, the latest chapter 45 is available. Read The Top 100 Young Lady raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "The Top 100 Young Lady manga, read all chapters here, the latest chapter 46 is available. Read The Top 100 Young Lady raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "46",
+      "title": "Chap 46",
+      "url": "https://mangafire.to/read/youngae-top-100.j2jqy/en/chapter-46"
+    },
     {
       "number": "45",
       "title": "Chap 45",
@@ -283,5 +288,5 @@
       "url": "https://mangafire.to/read/youngae-top-100.j2jqy/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:49:02Z"
+  "fetched_at": "2026-05-01T07:05:36Z"
 }

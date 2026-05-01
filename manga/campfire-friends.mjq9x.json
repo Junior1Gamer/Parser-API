@@ -1,8 +1,8 @@
 {
   "slug": "campfire-friends.mjq9x",
   "title": "Campfire Friends",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Campfire Friends manga, read all chapters here, the latest chapter 29 is available. Read Campfire Friends raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Campfire Friends manga, read all chapters here, the latest chapter 30 is available. Read Campfire Friends raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Horror"
   ],
   "chapters": [
+    {
+      "number": "30",
+      "title": "Chap 30",
+      "url": "https://mangafire.to/read/campfire-friends.mjq9x/en/chapter-30"
+    },
     {
       "number": "29",
       "title": "Chap 29",
@@ -199,5 +204,5 @@
       "url": "https://mangafire.to/read/campfire-friends.mjq9x/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:38:40Z"
+  "fetched_at": "2026-05-01T07:04:05Z"
 }

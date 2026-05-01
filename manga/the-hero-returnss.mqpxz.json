@@ -1,8 +1,8 @@
 {
   "slug": "the-hero-returnss.mqpxz",
   "title": "The Hero Returns",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "The Hero Returns manga, read all chapters here, the latest chapter 150 is available. Read The Hero Returns raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "The Hero Returns manga, read all chapters here, the latest chapter 151 is available. Read The Hero Returns raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "151",
+      "title": "Chap 151",
+      "url": "https://mangafire.to/read/the-hero-returnss.mqpxz/en/chapter-151"
+    },
     {
       "number": "150",
       "title": "Chap 150",
@@ -907,5 +912,5 @@
       "url": "https://mangafire.to/read/the-hero-returnss.mqpxz/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:40:42Z"
+  "fetched_at": "2026-05-01T07:05:27Z"
 }

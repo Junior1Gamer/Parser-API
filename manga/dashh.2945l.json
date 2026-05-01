@@ -1,8 +1,8 @@
 {
   "slug": "dashh.2945l",
   "title": "Dash!",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Dash! manga, read all chapters here, the latest chapter 41 is available. Read Dash! raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Dash! manga, read all chapters here, the latest chapter 42 is available. Read Dash! raw, multiple language. READ NOW!!",
   "status": "Completed",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "Martial Arts"
   ],
   "chapters": [
+    {
+      "number": "42",
+      "title": "Chap 42",
+      "url": "https://mangafire.to/read/dashh.2945l/en/chapter-42"
+    },
     {
       "number": "41",
       "title": "Chap 41",
@@ -173,5 +178,5 @@
       "url": "https://mangafire.to/read/dashh.2945l/en/chapter-19"
     }
   ],
-  "fetched_at": "2026-04-26T22:51:50Z"
+  "fetched_at": "2026-05-01T07:03:23Z"
 }

@@ -1,8 +1,8 @@
 {
   "slug": "akatsuki-ni-sazanami.x10n3",
   "title": "Akatsuki ni Sazanami",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Akatsuki ni Sazanami manga, read all chapters here, the latest chapter 4 is available. Read Akatsuki ni Sazanami raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Akatsuki ni Sazanami manga, read all chapters here, the latest chapter 4.5 is available. Read Akatsuki ni Sazanami raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -50,6 +50,11 @@
   ],
   "chapters": [
     {
+      "number": "4.5",
+      "title": "Chap 4.5",
+      "url": "https://mangafire.to/read/akatsuki-ni-sazanami.x10n3/en/chapter-4.5"
+    },
+    {
       "number": "4",
       "title": "Chap 4",
       "url": "https://mangafire.to/read/akatsuki-ni-sazanami.x10n3/en/chapter-4"
@@ -70,5 +75,5 @@
       "url": "https://mangafire.to/read/akatsuki-ni-sazanami.x10n3/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:33:34Z"
+  "fetched_at": "2026-05-01T07:03:55Z"
 }

@@ -1,8 +1,8 @@
 {
   "slug": "kikaijikake-no-marie.zk4q2",
   "title": "Kikaijikake no Marie+",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Kikaijikake no Marie+ manga, read all chapters here, the latest chapter 2 is available. Read Kikaijikake no Marie+ raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Kikaijikake no Marie+ manga, read all chapters here, the latest chapter 3 is available. Read Kikaijikake no Marie+ raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
   ],
   "chapters": [
     {
+      "number": "3",
+      "title": "Chap 3",
+      "url": "https://mangafire.to/read/kikaijikake-no-marie.zk4q2/en/chapter-3"
+    },
+    {
       "number": "2",
       "title": "Chap 2",
       "url": "https://mangafire.to/read/kikaijikake-no-marie.zk4q2/en/chapter-2"
@@ -63,5 +68,5 @@
       "url": "https://mangafire.to/read/kikaijikake-no-marie.zk4q2/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:43:37Z"
+  "fetched_at": "2026-05-01T07:03:50Z"
 }

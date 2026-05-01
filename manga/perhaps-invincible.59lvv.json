@@ -1,8 +1,8 @@
 {
   "slug": "perhaps-invincible.59lvv",
   "title": "Perhaps Invincible",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Perhaps Invincible manga, read all chapters here, the latest chapter 58 is available. Read Perhaps Invincible raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Perhaps Invincible manga, read all chapters here, the latest chapter 59 is available. Read Perhaps Invincible raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "59",
+      "title": "Chap 59",
+      "url": "https://mangafire.to/read/perhaps-invincible.59lvv/en/chapter-59"
+    },
     {
       "number": "58",
       "title": "Chap 58",
@@ -354,5 +359,5 @@
       "url": "https://mangafire.to/read/perhaps-invincible.59lvv/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:39:09Z"
+  "fetched_at": "2026-05-01T07:04:40Z"
 }

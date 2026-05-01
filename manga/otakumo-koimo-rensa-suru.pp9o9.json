@@ -1,8 +1,8 @@
 {
   "slug": "otakumo-koimo-rensa-suru.pp9o9",
   "title": "The Otaku Love Connection",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "The Otaku Love Connection manga, read all chapters here, the latest chapter 34.1 is available. Read The Otaku Love Connection raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "The Otaku Love Connection manga, read all chapters here, the latest chapter 35 is available. Read The Otaku Love Connection raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "School"
   ],
   "chapters": [
+    {
+      "number": "35",
+      "title": "Vol 0 -  Chap 35",
+      "url": "https://mangafire.to/read/otakumo-koimo-rensa-suru.pp9o9/en/chapter-35"
+    },
     {
       "number": "34.1",
       "title": "Vol 0 -  Chap 34.1",
@@ -572,5 +577,5 @@
       "url": "https://mangafire.to/read/otakumo-koimo-rensa-suru.pp9o9/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:57:19Z"
+  "fetched_at": "2026-05-01T07:04:06Z"
 }

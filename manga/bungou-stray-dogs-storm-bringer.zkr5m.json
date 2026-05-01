@@ -1,8 +1,8 @@
 {
   "slug": "bungou-stray-dogs-storm-bringer.zkr5m",
   "title": "Bungou Stray Dogs: Storm Bringer",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Bungou Stray Dogs: Storm Bringer manga, read all chapters here, the latest chapter 13 is available. Read Bungou Stray Dogs: Storm Bringer raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/eb19/i/0/0e/0e2422ee85a74121b551d2b65d493afe@100.jpg",
+  "description": "Bungou Stray Dogs: Storm Bringer manga, read all chapters here, the latest chapter 14 is available. Read Bungou Stray Dogs: Storm Bringer raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Supernatural"
   ],
   "chapters": [
+    {
+      "number": "14",
+      "title": "Vol 2 -  Chap 14",
+      "url": "https://mangafire.to/read/bungou-stray-dogs-storm-bringer.zkr5m/en/chapter-14"
+    },
     {
       "number": "13",
       "title": "Vol 2 -  Chap 13",
@@ -119,5 +124,5 @@
       "url": "https://mangafire.to/read/bungou-stray-dogs-storm-bringer.zkr5m/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:59:48Z"
+  "fetched_at": "2026-05-01T07:04:36Z"
 }
