@@ -1,8 +1,8 @@
 {
   "slug": "studio-cabanaa.kwzv9",
   "title": "Studio Cabana",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Studio Cabana manga, read all chapters here, the latest chapter 37 is available. Read Studio Cabana raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Studio Cabana manga, read all chapters here, the latest chapter 38 is available. Read Studio Cabana raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "School"
   ],
   "chapters": [
+    {
+      "number": "38",
+      "title": "Vol 9 -  Chap 38",
+      "url": "https://mangafire.to/read/studio-cabanaa.kwzv9/en/chapter-38"
+    },
     {
       "number": "37",
       "title": "Vol 9 -  Chap 37",
@@ -393,5 +398,5 @@
       "url": "https://mangafire.to/read/studio-cabanaa.kwzv9/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:24:05Z"
+  "fetched_at": "2026-05-03T07:02:32Z"
 }

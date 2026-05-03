@@ -1,8 +1,8 @@
 {
   "slug": "ookami-kun-wa-osowaretaii.mvkz7",
   "title": "Ookami-kun wa Osowaretai",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Ookami-kun wa Osowaretai manga, read all chapters here, the latest chapter 9 is available. Read Ookami-kun wa Osowaretai raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Ookami-kun wa Osowaretai manga, read all chapters here, the latest chapter 10 is available. Read Ookami-kun wa Osowaretai raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -50,6 +50,11 @@
   ],
   "chapters": [
     {
+      "number": "10",
+      "title": "Chap 10",
+      "url": "https://mangafire.to/read/ookami-kun-wa-osowaretaii.mvkz7/en/chapter-10"
+    },
+    {
       "number": "9",
       "title": "Chap 9",
       "url": "https://mangafire.to/read/ookami-kun-wa-osowaretaii.mvkz7/en/chapter-9"
@@ -95,5 +100,5 @@
       "url": "https://mangafire.to/read/ookami-kun-wa-osowaretaii.mvkz7/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:05:44Z"
+  "fetched_at": "2026-05-03T07:00:59Z"
 }

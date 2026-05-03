@@ -1,8 +1,8 @@
 {
   "slug": "jeonjijeok-dokja-sijeomm.5k9q",
   "title": "Omniscient Reader",
-  "cover": "https://static.mfcdn.nl/be52/i/d/d6/d6fb385b8b54267e6ecaa29dfc291d07@100.jpg",
-  "description": "Omniscient Reader manga, read all chapters here, the latest chapter 308 is available. Read Omniscient Reader raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/2da3/i/8/ad/7ea4850c88c8ccbf7182fba3867ccb24@100.jpg",
+  "description": "Omniscient Reader manga, read all chapters here, the latest chapter 309 is available. Read Omniscient Reader raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "309",
+      "title": "Chap 309",
+      "url": "https://mangafire.to/read/jeonjijeok-dokja-sijeomm.5k9q/en/chapter-309"
+    },
     {
       "number": "308",
       "title": "Chap 308",
@@ -1609,5 +1614,5 @@
       "url": "https://mangafire.to/read/jeonjijeok-dokja-sijeomm.5k9q/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:42:28Z"
+  "fetched_at": "2026-05-03T07:01:42Z"
 }

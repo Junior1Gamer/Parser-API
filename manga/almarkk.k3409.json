@@ -1,8 +1,8 @@
 {
   "slug": "almarkk.k3409",
   "title": "Almark",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Almark manga, read all chapters here, the latest chapter 31 is available. Read Almark raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Almark manga, read all chapters here, the latest chapter 32 is available. Read Almark raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Magic"
   ],
   "chapters": [
+    {
+      "number": "32",
+      "title": "Vol 0 -  Chap 32",
+      "url": "https://mangafire.to/read/almarkk.k3409/en/chapter-32"
+    },
     {
       "number": "31",
       "title": "Vol 3 -  Chap 31",
@@ -227,5 +232,5 @@
       "url": "https://mangafire.to/read/almarkk.k3409/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:01:22Z"
+  "fetched_at": "2026-05-03T07:02:08Z"
 }

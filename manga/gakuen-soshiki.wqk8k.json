@@ -1,8 +1,8 @@
 {
   "slug": "gakuen-soshiki.wqk8k",
   "title": "Gakuen Soshiki",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Gakuen Soshiki manga, read all chapters here, the latest chapter 52 is available. Read Gakuen Soshiki raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Gakuen Soshiki manga, read all chapters here, the latest chapter 53 is available. Read Gakuen Soshiki raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
   ],
   "chapters": [
     {
+      "number": "53",
+      "title": "Vol 0 -  Chap 53",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-53"
+    },
+    {
       "number": "52",
       "title": "Vol 0 -  Chap 52",
       "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-52"
@@ -59,6 +64,31 @@
       "number": "51",
       "title": "Vol 0 -  Chap 51",
       "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-51"
+    },
+    {
+      "number": "50",
+      "title": "Vol 0 -  Chap 50",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-50"
+    },
+    {
+      "number": "49",
+      "title": "Vol 0 -  Chap 49",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-49"
+    },
+    {
+      "number": "48",
+      "title": "Vol 0 -  Chap 48",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-48"
+    },
+    {
+      "number": "47",
+      "title": "Vol 0 -  Chap 47",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-47"
+    },
+    {
+      "number": "46",
+      "title": "Vol 0 -  Chap 46",
+      "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-46"
     },
     {
       "number": "45",
@@ -286,5 +316,5 @@
       "url": "https://mangafire.to/read/gakuen-soshiki.wqk8k/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:50:50Z"
+  "fetched_at": "2026-05-03T07:01:20Z"
 }

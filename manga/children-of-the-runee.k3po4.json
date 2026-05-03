@@ -1,8 +1,8 @@
 {
   "slug": "children-of-the-runee.k3po4",
   "title": "Children of the Rune",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Children of the Rune manga, read all chapters here, the latest chapter 59 is available. Read Children of the Rune raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Children of the Rune manga, read all chapters here, the latest chapter 60 is available. Read Children of the Rune raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -53,6 +53,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "60",
+      "title": "Chap 60",
+      "url": "https://mangafire.to/read/children-of-the-runee.k3po4/en/chapter-60"
+    },
     {
       "number": "59",
       "title": "Chap 59",
@@ -349,5 +354,5 @@
       "url": "https://mangafire.to/read/children-of-the-runee.k3po4/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:36:28Z"
+  "fetched_at": "2026-05-03T07:00:03Z"
 }

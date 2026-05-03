@@ -1,8 +1,8 @@
 {
   "slug": "gods-cuisine.60v64",
   "title": "God's Cuisine",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "God's Cuisine manga, read all chapters here, the latest chapter 41 is available. Read God's Cuisine raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "God's Cuisine manga, read all chapters here, the latest chapter 45 is available. Read God's Cuisine raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,26 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "45",
+      "title": "Chap 45",
+      "url": "https://mangafire.to/read/gods-cuisine.60v64/en/chapter-45"
+    },
+    {
+      "number": "44",
+      "title": "Chap 44",
+      "url": "https://mangafire.to/read/gods-cuisine.60v64/en/chapter-44"
+    },
+    {
+      "number": "43",
+      "title": "Chap 43",
+      "url": "https://mangafire.to/read/gods-cuisine.60v64/en/chapter-43"
+    },
+    {
+      "number": "42",
+      "title": "Chap 42",
+      "url": "https://mangafire.to/read/gods-cuisine.60v64/en/chapter-42"
+    },
     {
       "number": "41",
       "title": "Chap 41",
@@ -258,5 +278,5 @@
       "url": "https://mangafire.to/read/gods-cuisine.60v64/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:07:38Z"
+  "fetched_at": "2026-05-03T07:01:02Z"
 }

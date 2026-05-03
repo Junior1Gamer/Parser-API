@@ -1,8 +1,8 @@
 {
   "slug": "accel-worldd.1mv",
   "title": "Accel World",
-  "cover": "https://static.mfcdn.nl/e18b/i/4/46/46ed675de8961189d71c340e61dd624b@100.jpg",
-  "description": "Accel World manga, read all chapters here, the latest chapter 277.2 is available. Read Accel World raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/0e12/i/1/16/16ea1d00de28ec9bf019e78c7439026a@100.jpg",
+  "description": "Accel World manga, read all chapters here, the latest chapter 42.1 is available. Read Accel World raw, multiple language. READ NOW!!",
   "status": "Completed",
   "genres": [
     "Action",
@@ -52,11 +52,6 @@
     "School"
   ],
   "chapters": [
-    {
-      "number": "277.2",
-      "title": "Vol 6 -  Chap 277.2",
-      "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-277.2"
-    },
     {
       "number": "42.1",
       "title": "Vol 0 -  Chap 42.1",
@@ -159,7 +154,7 @@
     },
     {
       "number": "27.2",
-      "title": "Vol 0 -  Chap 27.2",
+      "title": "Vol 6 -  Chap 27.2",
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-27.2"
     },
     {
@@ -263,24 +258,9 @@
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-10"
     },
     {
-      "number": "9.6",
-      "title": "Vol 0 -  Chap 9.6",
-      "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-9.6"
-    },
-    {
-      "number": "9.5",
-      "title": "Vol 0 -  Chap 9.5",
-      "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-9.5"
-    },
-    {
       "number": "9",
       "title": "Vol 3 -  Chap 9",
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-9"
-    },
-    {
-      "number": "8.5",
-      "title": "Vol 0 -  Chap 8.5",
-      "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-8.5"
     },
     {
       "number": "8.1",
@@ -318,11 +298,6 @@
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-3"
     },
     {
-      "number": "2.1",
-      "title": "Vol 0 -  Chap 2.1",
-      "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-2.1"
-    },
-    {
       "number": "2",
       "title": "Vol 1 -  Chap 2",
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-2"
@@ -333,5 +308,5 @@
       "url": "https://mangafire.to/read/accel-worldd.1mv/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-27T01:40:10Z"
+  "fetched_at": "2026-05-03T07:01:56Z"
 }

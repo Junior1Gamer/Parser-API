@@ -2,7 +2,7 @@
   "slug": "bouryoku-banzai2.171pq",
   "title": "Bouryoku Banzai",
   "cover": "https://static.mfcdn.nl/7231/i/7/70/705c2126a15c0cfa251b67e7c3766610@100.jpg",
-  "description": "Bouryoku Banzai manga, read all chapters here, the latest chapter 52 is available. Read Bouryoku Banzai raw, multiple language. READ NOW!!",
+  "description": "Bouryoku Banzai manga, read all chapters here, the latest chapter 54 is available. Read Bouryoku Banzai raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -54,6 +54,16 @@
     "Seinen"
   ],
   "chapters": [
+    {
+      "number": "54",
+      "title": "Vol 0 -  Chap 54",
+      "url": "https://mangafire.to/read/bouryoku-banzai2.171pq/en/chapter-54"
+    },
+    {
+      "number": "53",
+      "title": "Vol 0 -  Chap 53",
+      "url": "https://mangafire.to/read/bouryoku-banzai2.171pq/en/chapter-53"
+    },
     {
       "number": "52",
       "title": "Vol 0 -  Chap 52",
@@ -320,5 +330,5 @@
       "url": "https://mangafire.to/read/bouryoku-banzai2.171pq/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:36:59Z"
+  "fetched_at": "2026-05-03T07:02:12Z"
 }

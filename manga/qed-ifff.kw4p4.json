@@ -1,8 +1,8 @@
 {
   "slug": "qed-ifff.kw4p4",
   "title": "Q.E.D. iff",
-  "cover": "https://static.mfcdn.nl/f149/i/f/f4/f4b48fcd9c58423b40ade03b3dae5bc4@100.jpg",
-  "description": "Q.E.D. iff manga, read all chapters here, the latest chapter 49 is available. Read Q.E.D. iff raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Q.E.D. iff manga, read all chapters here, the latest chapter 50 is available. Read Q.E.D. iff raw, multiple language. READ NOW!!",
   "status": "Completed",
   "genres": [
     "Action",
@@ -50,6 +50,11 @@
     "Shounen"
   ],
   "chapters": [
+    {
+      "number": "50",
+      "title": "Vol 25 -  Chap 50",
+      "url": "https://mangafire.to/read/qed-ifff.kw4p4/en/chapter-50"
+    },
     {
       "number": "49",
       "title": "Vol 25 -  Chap 49",
@@ -296,5 +301,5 @@
       "url": "https://mangafire.to/read/qed-ifff.kw4p4/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-27T00:48:12Z"
+  "fetched_at": "2026-05-03T07:00:21Z"
 }

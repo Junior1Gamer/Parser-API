@@ -2,7 +2,7 @@
   "slug": "wild-lifee.myzx",
   "title": "Wild Life",
   "cover": "https://static.mfcdn.nl/fec1/i/f/fb/fb40e07bd2851d9dfc0e89fa486de3dd@100.jpg",
-  "description": "Wild Life manga, read all chapters here, the latest chapter 163 is available. Read Wild Life raw, multiple language. READ NOW!!",
+  "description": "Wild Life manga, read all chapters here, the latest chapter 164 is available. Read Wild Life raw, multiple language. READ NOW!!",
   "status": "Completed",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "Shounen"
   ],
   "chapters": [
+    {
+      "number": "164",
+      "title": "Vol 19 -  Chap 164",
+      "url": "https://mangafire.to/read/wild-lifee.myzx/en/chapter-164"
+    },
     {
       "number": "163",
       "title": "Vol 19 -  Chap 163",
@@ -908,5 +913,5 @@
       "url": "https://mangafire.to/read/wild-lifee.myzx/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T23:17:00Z"
+  "fetched_at": "2026-05-03T06:59:56Z"
 }

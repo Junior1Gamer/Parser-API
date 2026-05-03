@@ -1,8 +1,8 @@
 {
   "slug": "gachiakutaa.1n2xq",
   "title": "Gachiakuta",
-  "cover": "https://static.mfcdn.nl/c057/i/c/c7/e988e486bb925872053f1ab8677ca026@100.jpg",
-  "description": "Gachiakuta manga, read all chapters here, the latest chapter 165 is available. Read Gachiakuta raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/91b1/i/7/74/74a5cd7122ef5c5a6526f69f8e268a09@100.jpg",
+  "description": "Gachiakuta manga, read all chapters here, the latest chapter 166 is available. Read Gachiakuta raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -55,6 +55,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "166",
+      "title": "Vol 0 -  Chap 166",
+      "url": "https://mangafire.to/read/gachiakutaa.1n2xq/en/chapter-166"
+    },
     {
       "number": "165",
       "title": "Vol 0 -  Chap 165",
@@ -901,5 +906,5 @@
       "url": "https://mangafire.to/read/gachiakutaa.1n2xq/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:43:44Z"
+  "fetched_at": "2026-05-03T07:02:16Z"
 }

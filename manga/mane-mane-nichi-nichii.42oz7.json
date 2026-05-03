@@ -1,8 +1,8 @@
 {
   "slug": "mane-mane-nichi-nichii.42oz7",
   "title": "Mane Mane Nichi Nichi",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Mane Mane Nichi Nichi manga, read all chapters here, the latest chapter 60 is available. Read Mane Mane Nichi Nichi raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Mane Mane Nichi Nichi manga, read all chapters here, the latest chapter 61 is available. Read Mane Mane Nichi Nichi raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -54,13 +54,18 @@
   ],
   "chapters": [
     {
+      "number": "61",
+      "title": "Vol 0 -  Chap 61",
+      "url": "https://mangafire.to/read/mane-mane-nichi-nichii.42oz7/en/chapter-61"
+    },
+    {
       "number": "60",
-      "title": "Vol 0 -  Chap 60",
+      "title": "Vol 3 -  Chap 60",
       "url": "https://mangafire.to/read/mane-mane-nichi-nichii.42oz7/en/chapter-60"
     },
     {
       "number": "59",
-      "title": "Vol 0 -  Chap 59",
+      "title": "Vol 3 -  Chap 59",
       "url": "https://mangafire.to/read/mane-mane-nichi-nichii.42oz7/en/chapter-59"
     },
     {
@@ -359,5 +364,5 @@
       "url": "https://mangafire.to/read/mane-mane-nichi-nichii.42oz7/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:39:25Z"
+  "fetched_at": "2026-05-03T07:01:28Z"
 }

@@ -1,8 +1,8 @@
 {
   "slug": "return-to-playerr.yqly0",
   "title": "Return to Player",
-  "cover": "https://static.mfcdn.nl/23ca/i/1/18/18da72bfcaeab460d619b97479ce263f@100.jpg",
-  "description": "Return to Player manga, read all chapters here, the latest chapter 237 is available. Read Return to Player raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/2af0/i/8/86/8677bedce2bd1b216a86a8492c565c69@100.jpg",
+  "description": "Return to Player manga, read all chapters here, the latest chapter 238 is available. Read Return to Player raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -51,6 +51,11 @@
     "Fantasy"
   ],
   "chapters": [
+    {
+      "number": "238",
+      "title": "Chap 238",
+      "url": "https://mangafire.to/read/return-to-playerr.yqly0/en/chapter-238"
+    },
     {
       "number": "237",
       "title": "Chap 237",
@@ -1282,5 +1287,5 @@
       "url": "https://mangafire.to/read/return-to-playerr.yqly0/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:29:12Z"
+  "fetched_at": "2026-05-03T07:00:01Z"
 }

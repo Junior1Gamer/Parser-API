@@ -1,8 +1,8 @@
 {
   "slug": "nukodukee.n54l",
   "title": "Nukoduke!",
-  "cover": "https://static.mfcdn.nl/eb26/i/c/ce/ceba1c156bc6e3ff6dc6bced435b03b0@100.jpg",
-  "description": "Nukoduke! manga, read all chapters here, the latest chapter 297 is available. Read Nukoduke! raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/4962/i/b/b8/b85978cf08d0746267afcf8759bf0269@100.jpg",
+  "description": "Nukoduke! manga, read all chapters here, the latest chapter 298 is available. Read Nukoduke! raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,11 @@
     "Slice of Life"
   ],
   "chapters": [
+    {
+      "number": "298",
+      "title": "Vol 12 -  Chap 298",
+      "url": "https://mangafire.to/read/nukodukee.n54l/en/chapter-298"
+    },
     {
       "number": "297",
       "title": "Vol 12 -  Chap 297",
@@ -1488,5 +1493,5 @@
       "url": "https://mangafire.to/read/nukodukee.n54l/en/chapter-0"
     }
   ],
-  "fetched_at": "2026-04-26T22:45:37Z"
+  "fetched_at": "2026-05-03T07:02:32Z"
 }

@@ -1,8 +1,8 @@
 {
   "slug": "red-bluee.4qooo",
   "title": "Red Blue",
-  "cover": "https://static.mfcdn.nl/2f64/i/3/30/40825b829a241fd494d765e2baa4f227@100.jpg",
-  "description": "Red Blue manga, read all chapters here, the latest chapter 190 is available. Read Red Blue raw, multiple language. READ NOW!!",
+  "cover": "https://static.mfcdn.nl/3aa9/i/9/95/da60f7045a1a04bbde01520eb24c793e@100.jpg",
+  "description": "Red Blue manga, read all chapters here, the latest chapter 192 is available. Read Red Blue raw, multiple language. READ NOW!!",
   "status": "Releasing",
   "genres": [
     "Action",
@@ -52,6 +52,16 @@
     "Martial Arts"
   ],
   "chapters": [
+    {
+      "number": "192",
+      "title": "Vol 14 -  Chap 192",
+      "url": "https://mangafire.to/read/red-bluee.4qooo/en/chapter-192"
+    },
+    {
+      "number": "191",
+      "title": "Vol 14 -  Chap 191",
+      "url": "https://mangafire.to/read/red-bluee.4qooo/en/chapter-191"
+    },
     {
       "number": "190",
       "title": "Vol 14 -  Chap 190",
@@ -1003,5 +1013,5 @@
       "url": "https://mangafire.to/read/red-bluee.4qooo/en/chapter-1"
     }
   ],
-  "fetched_at": "2026-04-26T22:46:30Z"
+  "fetched_at": "2026-05-03T07:01:59Z"
 }
